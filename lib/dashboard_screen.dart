@@ -1,12 +1,11 @@
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_3/Appointment_Screen.dart';
 import 'package:flutter_application_3/Blog%20_Screen.dart';
 import 'package:flutter_application_3/Settings_Screen.dart';
 import 'package:flutter_application_3/Shop_screen.dart';
 import 'package:flutter_application_3/aboutUs.dart';
-
-// Import your new screen
-
+import 'package:flutter_animate/flutter_animate.dart';
 
 void main() {
   runApp(const MyApp());
@@ -23,7 +22,6 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.green,
       ),
       home: const DashboardScreen(),
-      
     );
   }
 }
@@ -32,45 +30,46 @@ class MyApp extends StatelessWidget {
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
-
   @override
- Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: const Text('The Real Health'),
-      centerTitle: true,
-      backgroundColor: const Color.fromARGB(255, 145, 221, 207), // Change to a pastel light blue
-      titleTextStyle: const TextStyle(
-        fontSize: 20,
-        fontWeight: FontWeight.bold,
-        color: Color(0xFF3A3B3C), // Neutral dark color for contrast
-      ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.notifications, color: Color.fromARGB(255, 58, 60, 58)),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const NotificationsScreen()),
-            );
-          },
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('The Real Health'),
+        centerTitle: true,
+        backgroundColor: const Color.fromARGB(
+            255, 145, 221, 207), // Change to a pastel light blue
+        titleTextStyle: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: Color(0xFF3A3B3C), // Neutral dark color for contrast
         ),
-      ],
-      iconTheme: const IconThemeData(color: Color(0xFF3A3B3C)), // Sidebar icon color
-    ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications,
+                color: Color.fromARGB(255, 58, 60, 58)),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const NotificationsScreen()),
+              );
+            },
+          ),
+        ],
+        iconTheme:
+            const IconThemeData(color: Color(0xFF3A3B3C)), // Sidebar icon color
+      ),
       drawer: _buildSidebar(context),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader(context),
-            
             _buildFeaturesSection(context),
-             _buildServicesSection(context),    
-             _buildExpertiseSection(context),
+            _buildServicesSection(context),
+            _buildExpertiseSection(context),
             _buildNutritionTipsSection(context),
             _buildContactUsSection(context),
-          
           ],
         ),
       ),
@@ -99,28 +98,30 @@ class DashboardScreen extends StatelessWidget {
             currentAccountPicture: CircleAvatar(
               backgroundImage: NetworkImage('https://via.placeholder.com/150'),
             ),
-            decoration: BoxDecoration(color: Color.fromARGB(255,243,158,96)),
+            decoration: BoxDecoration(color: Color.fromARGB(255, 243, 158, 96)),
           ),
-          _buildDrawerItem(context, Icons.home, 'Home', const DashboardScreen()),
-          _buildDrawerItem(context, Icons.health_and_safety, 'Health programs', const HealthProgramsScreen()),
-          _buildDrawerItem(context, Icons.calendar_today, 'Appointments', const AppointmentsScreen()),
-          _buildDrawerItem(context, Icons.shopping_cart, 'Shop', const ShopScreen()),
+          _buildDrawerItem(
+              context, Icons.home, 'Home', const DashboardScreen()),
+          _buildDrawerItem(context, Icons.health_and_safety, 'Health programs',
+              const HealthProgramsScreen()),
+          _buildDrawerItem(context, Icons.calendar_today, 'Appointments',
+              const AppointmentsScreen()),
+          _buildDrawerItem(
+              context, Icons.shopping_cart, 'Shop', const ShopScreen()),
           _buildDrawerItem(context, Icons.article, 'Blogs', const BlogScreen()),
           const Divider(),
-          _buildDrawerItem(context, Icons.settings, 'Settings', const SettingsScreen()),
+          _buildDrawerItem(
+              context, Icons.settings, 'Settings', const SettingsScreen()),
           _buildDrawerItem(context, Icons.logout, 'Logout', null),
-
-
         ],
       ),
     );
   }
 
-  
-
-  Widget _buildDrawerItem(BuildContext context, IconData icon, String title, Widget? destination) {
+  Widget _buildDrawerItem(
+      BuildContext context, IconData icon, String title, Widget? destination) {
     return ListTile(
-      leading: Icon(icon, color: const Color.fromARGB(255, 21, 136, 25)), 
+      leading: Icon(icon, color: const Color.fromARGB(255, 21, 136, 25)),
       title: Text(title),
       onTap: () {
         if (destination != null) {
@@ -133,55 +134,49 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-Widget _buildHeader(BuildContext context) {
-  return Container(
-    padding: const EdgeInsets.all(16.0),
-    decoration: BoxDecoration(
-      gradient: const LinearGradient(
-        colors: [
-          Color(0xFFE8F9FD), // Pastel Light Blue
-          Color(0xFFFFE7C9), // Pastel Peach
-          // Pastel Pink
-        ],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
+  Widget _buildHeader(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20.0),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Colors.teal, Colors.lightGreen],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(18),
       ),
-      borderRadius: BorderRadius.circular(4),
-    ),
-    child: const Row(
-      children: [
-        CircleAvatar(
-          radius: 37,
-          backgroundImage: NetworkImage(
-              'https://lh3.googleusercontent.com/p/AF1QipPpt8BI4I0v7NhP19OaNkAruI7jrBQi4NJhoSU=s1360-w1360-h1020'),
-        ),
-        SizedBox(width: 16),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Welcome Back!',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF3A3B3C), // Neutral for contrast
+      child: Row(
+        children: [
+          const CircleAvatar(
+            radius: 35,
+            backgroundImage: NetworkImage('https://therealhealth.org/wp-content/uploads/2024/04/both-removebg-preview.png'),
+          ),
+          const SizedBox(width: 19),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Welcome Back!',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
-            ),
-            Text(
-              'Stay healthy with Real Health.',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                color: Color.fromARGB(255,255, 178, 111),
+              Text(
+                'Stay healthy with Real Health.',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.white.withOpacity(0.8),
+                ),
               ),
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
-}
-
+            ],
+          ),
+        ],
+      ),
+    ).animate().fadeIn(duration: 500.ms).slideX(begin: -0.5);
+  }
 
   Widget _buildFeaturesSection(BuildContext context) {
     return Padding(
@@ -201,10 +196,30 @@ Widget _buildHeader(BuildContext context) {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             children: [
-              _buildFeatureTile(context, 'PRAKRITI PARIKSHA', Icons.save_as, Colors.blueAccent),
-              _buildFeatureTile(context, 'Nutrition Plans', Icons.restaurant, Colors.orange),
-              _buildFeatureTile(context, 'Wellness Programs & Exercise Routines', Icons.self_improvement, Colors.purple),
-              _buildFeatureTile(context, 'Consultations', Icons.medical_services, Colors.green),
+              _buildFeatureTile(
+                context,
+                'PRAKRITI PARIKSHA',
+                'assets/images/icon2.jpeg',
+                url: 'https://therealhealth.org/prakriti-analysis/#single/0',
+              ),
+              _buildFeatureTile(
+                context,
+                'Nutrition Plans',
+                Icons.restaurant,
+                color: Colors.orange,
+              ),
+              _buildFeatureTile(
+                context,
+                'Wellness/Exercise Routines',
+                Icons.self_improvement,
+                color: Colors.teal,
+              ),
+              _buildFeatureTile(
+                context,
+                'Consultations',
+                Icons.medical_services,
+                color: Colors.green,
+              ),
             ],
           ),
         ],
@@ -212,17 +227,27 @@ Widget _buildHeader(BuildContext context) {
     );
   }
 
-  Widget _buildFeatureTile(BuildContext context, String title, IconData icon, Color color) {
+  Widget _buildFeatureTile(
+    BuildContext context,
+    String title,
+    dynamic asset, {
+    Color? color,
+    String? url,
+  }) {
     return GestureDetector(
       onTap: () {
-        // Navigate to respective feature screen
+        if (url != null) {
+          _launchURL(url);
+        }
       },
       child: Card(
         elevation: 4,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 40, color: color),
+            asset is IconData
+                ? Icon(asset, size: 40, color: color ?? Colors.black)
+                : Image.asset(asset, height: 40),
             const SizedBox(height: 10),
             Text(
               title,
@@ -234,143 +259,177 @@ Widget _buildHeader(BuildContext context) {
       ),
     );
   }
+}
 
-  Widget _buildServicesSection(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Our Services',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 10),
-          ListTile(
-            leading: const Icon(Icons.spa, color: Colors.green),
-            title: const Text('Mental Wellness Programs'),
-            subtitle: const Text('Tailored plans for your mental health.'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const WellnessScreen()),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.food_bank, color: Colors.orange),
-            title: const Text('Healthy Eating Guides'),
-            subtitle: const Text('Nutrition-focused eating plans.'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const NutritionScreen()),
-              );
-            },
-          ),
-        ],
-      ),
-    );
+Future<void> _launchURL(String url) async {
+  final uri = Uri.parse(url);
+  if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+    throw 'Could not launch $url';
   }
+}
 
-  Widget _buildExpertiseSection(BuildContext context) {
-    final List<Map<String, dynamic>> expertiseItems = [
-      {
-        'title': 'Diabetes & Pre Diabetes',
-        'imageUrl': 'https://etimg.etb2bimg.com/thumb/msid-105205469,imgsize-15434,width-1200,height=765,overlay-ethealth/industry/early-detection-of-pre-diabetes-to-prevent-diabetes-need-of-the-hour.jpg',
-        'screen': const DiabetesScreen(),
-      },
-      {
-        'title': 'Heart Disease',
-        'imageUrl': 'https://bpincontrol.in/wp-content/uploads/2023/08/Heart-Disease.jpg',
-        'screen': const HeartDiseaseScreen(),
-      },
-      {
-        'title': 'Weight Management',
-        'imageUrl': 'https://www.health.com/thmb/z8T-vu1AVZ9flwXK9P15kcRmr6c=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Health-GettyImages-FoodsForWeightLoss-35e70ba668eb4d9783e89e93cabf55a9.jpg',
-        'screen': const WeightManagementScreen(),
-      },
-      {
-        'title': 'PCOD and Gynae Problems',
-        'imageUrl': 'https://therealhealth.org/wp-content/uploads/2024/04/pcod-p-200x200.png',
-        'screen': const PcodScreen(),
-      },
-      {
-        'title': 'Kids Immunity & Nutrition',
-        'imageUrl': 'https://therealhealth.org/wp-content/uploads/2024/04/child-diet-200x200.png',
-        'screen': const KidsNutritionScreen(),
-      },
-      {
-        'title': 'Nutrition for Cancer Patient',
-        'imageUrl': 'https://therealhealth.org/wp-content/uploads/2024/04/can-diet-200x200.png',
-        'screen': const CancerNutritionScreen(),
-      },
-    ];
+Widget _buildServicesSection(BuildContext context) {
+  return Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Our Services',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 10),
+        ListTile(
+          leading: const Icon(Icons.spa, color: Colors.green),
+          title: const Text('Mental Wellness Programs'),
+          subtitle: const Text('Tailored plans for your mental health.'),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const WellnessScreen()),
+            );
+          },
+        ),
+        ListTile(
+          leading: const Icon(Icons.food_bank, color: Colors.orange),
+          title: const Text('Healthy Eating Guides'),
+          subtitle: const Text('Nutrition-focused eating plans.'),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const NutritionScreen()),
+            );
+          },
+        ),
+      ],
+    ),
+  );
+}
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Our Expertise',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+Widget _buildExpertiseSection(BuildContext context) {
+  final List<Map<String, dynamic>> expertiseItems = [
+    {
+      'title': 'Diabetes & Pre Diabetes',
+      'imageUrl':
+          'https://etimg.etb2bimg.com/thumb/msid-105205469,imgsize-15434,width-1200,height=765,overlay-ethealth/industry/early-detection-of-pre-diabetes-to-prevent-diabetes-need-of-the-hour.jpg',
+      'screen': const DiabetesScreen(),
+    },
+    {
+      'title': 'Heart Disease',
+      'imageUrl':
+          'https://bpincontrol.in/wp-content/uploads/2023/08/Heart-Disease.jpg',
+      'screen': const HeartDiseaseScreen(),
+    },
+    {
+      'title': 'Weight Management',
+      'imageUrl':
+          'https://www.health.com/thmb/z8T-vu1AVZ9flwXK9P15kcRmr6c=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Health-GettyImages-FoodsForWeightLoss-35e70ba668eb4d9783e89e93cabf55a9.jpg',
+      'screen': const WeightManagementScreen(),
+    },
+    {
+      'title': 'PCOD and Gynae Problems',
+      'imageUrl':
+          'https://therealhealth.org/wp-content/uploads/2024/04/pcod-p-200x200.png',
+      'screen': const PcodScreen(),
+    },
+    {
+      'title': 'Kids Immunity & Nutrition',
+      'imageUrl':
+          'https://therealhealth.org/wp-content/uploads/2024/04/child-diet-200x200.png',
+      'screen': const KidsNutritionScreen(),
+    },
+    {
+      'title': 'Nutrition for Cancer Patient',
+      'imageUrl':
+          'https://therealhealth.org/wp-content/uploads/2024/04/can-diet-200x200.png',
+      'screen': const CancerNutritionScreen(),
+    },
+  ];
+
+  return Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Our Expertise',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 10),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
           ),
-          const SizedBox(height: 10),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-            ),
-            itemCount: expertiseItems.length,
-            itemBuilder: (context, index) {
-              final item = expertiseItems[index];
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => item['screen']),
-                  );
-                },
-                child: Card(
-                  elevation: 4,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircleAvatar(
-                        radius: 40,
-                        backgroundImage: NetworkImage(item['imageUrl']),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        item['title'],
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
+          itemCount: expertiseItems.length,
+          itemBuilder: (context, index) {
+            final item = expertiseItems[index];
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => item['screen']),
+                );
+              },
+              child: Card(
+                elevation: 4,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircleAvatar(
+                      radius: 40,
+                      backgroundImage: NetworkImage(item['imageUrl']),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      item['title'],
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
                 ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
+              ),
+            );
+          },
+        ),
+      ],
+    ),
+  );
 }
 
 // Individual Screens
 class DiabetesScreen extends StatelessWidget {
   const DiabetesScreen({super.key});
 
+  static const String url = 'https://therealhealth.org/diabetes/';
+
+  Future<void> _launchURL() async {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Diabetes & Pre Diabetes')),
-      body: const Center(child: Text('Information about Diabetes & Pre Diabetes')),
+    // Trigger URL opening after widget build
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        await _launchURL();
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+      Navigator.pop(context); // Go back after launching URL
+    });
+
+    // Show a blank screen or loader briefly
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
     );
   }
 }
@@ -378,11 +437,34 @@ class DiabetesScreen extends StatelessWidget {
 class HeartDiseaseScreen extends StatelessWidget {
   const HeartDiseaseScreen({super.key});
 
+  static const String url = 'https://therealhealth.org/heart-diseases/';
+
+  Future<void> _launchURL() async {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Trigger URL opening after widget build
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        await _launchURL();
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+      Navigator.pop(context); // Go back after launching URL
+    });
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Heart Disease')),
-      body: const Center(child: Text('Information about Heart Disease')),
+      appBar: AppBar(title: const Text('Heart Disease Info')),
+      body: const Center(
+        child: Text('Launching Heart Disease URL...'),
+      ),
     );
   }
 }
@@ -390,11 +472,32 @@ class HeartDiseaseScreen extends StatelessWidget {
 class WeightManagementScreen extends StatelessWidget {
   const WeightManagementScreen({super.key});
 
+  static const String url = 'https://therealhealth.org/obesity/';
+
+  Future<void> _launchURL() async {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Weight Management')),
-      body: const Center(child: Text('Information about Weight Management')),
+    // Trigger URL opening after widget build
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        await _launchURL();
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+      Navigator.pop(context); // Go back after launching URL
+    });
+
+    // Show a blank screen or loader briefly
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
     );
   }
 }
@@ -402,11 +505,32 @@ class WeightManagementScreen extends StatelessWidget {
 class PcodScreen extends StatelessWidget {
   const PcodScreen({super.key});
 
+  static const String url = 'https://therealhealth.org/pcod/';
+
+  Future<void> _launchURL() async {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('PCOD and Gynae Problems')),
-      body: const Center(child: Text('Information about PCOD and Gynae Problems')),
+    // Trigger URL opening after widget build
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        await _launchURL();
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+      Navigator.pop(context); // Go back after launching URL
+    });
+
+    // Show a blank screen or loader briefly
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
     );
   }
 }
@@ -414,11 +538,33 @@ class PcodScreen extends StatelessWidget {
 class KidsNutritionScreen extends StatelessWidget {
   const KidsNutritionScreen({super.key});
 
+  static const String url =
+      'https://therealhealth.org/kids-immunity-nutrition/';
+
+  Future<void> _launchURL() async {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Kids Immunity & Nutrition')),
-      body: const Center(child: Text('Information about Kids Immunity & Nutrition')),
+    // Trigger URL opening after widget build
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        await _launchURL();
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+      Navigator.pop(context); // Go back after launching URL
+    });
+
+    // Show a blank screen or loader briefly
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
     );
   }
 }
@@ -426,73 +572,95 @@ class KidsNutritionScreen extends StatelessWidget {
 class CancerNutritionScreen extends StatelessWidget {
   const CancerNutritionScreen({super.key});
 
+  static const String url =
+      'https://therealhealth.org/nutrition-for-cancer-patients/';
+
+  Future<void> _launchURL() async {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Nutrition for Cancer Patient')),
-      body: const Center(child: Text('Information about Nutrition for Cancer Patient')),
+    // Trigger URL opening after widget build
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        await _launchURL();
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+      Navigator.pop(context); // Go back after launching URL
+    });
+
+    // Show a blank screen or loader briefly
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
     );
   }
 }
 
-  Widget _buildNutritionTipsSection(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Daily Nutrition Tips',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 10),
-          ListView.builder(
-            itemCount: 3,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemBuilder: (context, index) {
-              return Card(
-                elevation: 4,
-                margin: const EdgeInsets.only(bottom: 10),
-                child: ListTile(
-                  leading: const Icon(Icons.local_dining, color: Colors.green),
-                  title: Text('Tip #$index: Eat More Greens'),
-                  subtitle: const Text('Include green vegetables in your meals daily.'),
-                ),
-              );
-            },
-          ),
-        ],  
-      ),
-    );
-  }
+Widget _buildNutritionTipsSection(BuildContext context) {
+  return Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Daily Nutrition Tips',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 10),
+        ListView.builder(
+          itemCount: 3,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemBuilder: (context, index) {
+            return Card(
+              elevation: 4,
+              margin: const EdgeInsets.only(bottom: 10),
+              child: ListTile(
+                leading: const Icon(Icons.local_dining, color: Colors.green),
+                title: Text('Tip #$index: Eat More Greens'),
+                subtitle:
+                    const Text('Include green vegetables in your meals daily.'),
+              ),
+            );
+          },
+        ),
+      ],
+    ),
+  );
+}
 
-  Widget _buildContactUsSection(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Contact Us',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 10),
-          ListTile(
-            leading: Icon(Icons.email, color: Colors.green),
-            title: Text('Email Us'),
-            subtitle: Text('support@therealhealth.org'),
-          ),
-          ListTile(
-            leading: Icon(Icons.phone, color: Colors.green),
-            title: Text('Call Us'),
-            subtitle: Text('+1 234 567 890'),
-          ),
-        ],
-      ),
-    );
-  }
-  
+Widget _buildContactUsSection(BuildContext context) {
+  return const Padding(
+    padding: EdgeInsets.all(16.0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Contact Us',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 10),
+        ListTile(
+          leading: Icon(Icons.email, color: Colors.green),
+          title: Text('Email Us'),
+          subtitle: Text('support@therealhealth.org'),
+        ),
+        ListTile(
+          leading: Icon(Icons.phone, color: Colors.green),
+          title: Text('Call Us'),
+          subtitle: Text('+1 234 567 890'),
+        ),
+      ],
+    ),
+  );
+}
 
 // Modify the BottomNavigationBar with onTap handling
 Widget _buildBottomNavigationBar(BuildContext context) {
@@ -532,8 +700,6 @@ Widget _buildBottomNavigationBar(BuildContext context) {
   );
 }
 
-  
-
 // Additional Screens
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
@@ -550,16 +716,36 @@ class NotificationsScreen extends StatelessWidget {
 class ChatSupportScreen extends StatelessWidget {
   const ChatSupportScreen({super.key});
 
+  Future<void> _launchURL() async {
+    const String phoneNumber = "+919015409707"; // Organization's WhatsApp number
+    final String message = Uri.encodeComponent("Hello, I need support");
+    final String url = "https://wa.me/$phoneNumber?text=$message";
+
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Chat Support')),
-      body: const Center(child: Text('Live Chat Coming Soon')),
+      body: Center(
+        child: ElevatedButton.icon(
+          onPressed: _launchURL,
+          icon: const Icon(Icons.chat, color: Colors.white),
+          label: const Text("Chat on WhatsApp",
+              style: TextStyle(color: Colors.white)),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.green, // WhatsApp theme color
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          ),
+        ),
+      ),
     );
   }
 }
-
-
 
 class HealthProgramsScreen extends StatelessWidget {
   const HealthProgramsScreen({super.key});
@@ -568,37 +754,51 @@ class HealthProgramsScreen extends StatelessWidget {
     {
       "title": "Diabetes & Pre Diabetes",
       "content": "Learn how to manage and prevent diabetes with expert advice.",
-      "imageUrl": "https://milehighspine.com/wp-content/uploads/Diabetes101A.jpg",
+      "imageUrl":
+          "https://milehighspine.com/wp-content/uploads/Diabetes101A.jpg",
+      "url": "https://therealhealth.org/diabetes/",
     },
     {
       "title": "Heart Diseases",
       "content": "Explore tips and programs for a healthy heart.",
-      "imageUrl": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27626%27%20height%3D%27417%27%20viewBox%3D%270%200%20626%20417%27%3E%3Crect%20width%3D%27626%27%20height%3D%27417%27%20fill-opacity%3D%220%22%2F%3E%3C%2Fsvg%3E",
+      "imageUrl":
+          "https://therealhealth.org/wp-content/uploads/2024/04/heart-p-1-200x200.png",
+      "url": "https://therealhealth.org/heart-diseases/",
     },
     {
       "title": "Weight Management",
       "content": "Achieve your ideal weight with our comprehensive guidance.",
-      "imageUrl": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%271380%27%20height%3D%27920%27%20viewBox%3D%270%200%201380%20920%27%3E%3Crect%20width%3D%271380%27%20height%3D%27920%27%20fill-opacity%3D%220%22%2F%3E%3C%2Fsvg%3E",
+      "imageUrl":
+          "https://therealhealth.org/wp-content/uploads/2024/04/weight-diet-200x200.png",
+      "url": "https://therealhealth.org/obesity/",
     },
     {
       "title": "Gynae & PCOD",
       "content": "Specialized programs for women's health and PCOD management.",
-      "imageUrl": "https://example.com/images/gynae.png",
+      "imageUrl":
+          "https://therealhealth.org/wp-content/uploads/2024/04/pcod-p-200x200.png",
+      "url": "https://therealhealth.org/pcod/",
     },
     {
-      "title": "Kids Immunity & Nutrition",
-      "content": "Boost your kids' immunity with tailored nutrition plans.",
-      "imageUrl": "https://example.com/images/kids.png",
+      "title": "Kids Immunity and Nutrition",
+      "content": "Boost your child's immunity with nutrition-focused programs",
+      "imageUrl":
+          "https://therealhealth.org/wp-content/uploads/2024/04/child-diet-200x200.png",
+      "url": "https://therealhealth.org/kids-immunity-nutrition/",
     },
     {
       "title": "Stress Management",
-      "content": "Reduce stress with our holistic management programs.",
-      "imageUrl": "https://example.com/images/stress.png",
+      "content": "Manage stress with expert techniques and guidance",
+      "imageUrl":
+          "https://cdn.prod.website-files.com/620e4101b2ce12a1a6bff0e8/63bc1fffef375305987d272a_Tips%20for%20Stress%20Management%20for%20Students.webp",
+      "url": "https://therealhealth.org/stress-managment-pogram/",
     },
     {
-      "title": "Nutrition for Cancer Patients",
-      "content": "Nutrition advice tailored for cancer patients.",
-      "imageUrl": "https://example.com/images/cancer.png",
+      "title": "Nutrition For Cancer Patient",
+      "content": "Tailored nutritional guidance for cancer patients",
+      "imageUrl":
+          "https://therealhealth.org/wp-content/uploads/2024/04/can-diet-200x200.png",
+      "url": "https://therealhealth.org/low-immunity-2/",
     },
   ];
 
@@ -621,6 +821,7 @@ class HealthProgramsScreen extends StatelessWidget {
         child: ListView.builder(
           itemCount: programs.length,
           itemBuilder: (context, index) {
+            final program = programs[index];
             return Card(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               shape: RoundedRectangleBorder(
@@ -634,7 +835,7 @@ class HealthProgramsScreen extends StatelessWidget {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: Image.network(
-                        programs[index]['imageUrl']!,
+                        program['imageUrl']!,
                         height: 60,
                         width: 60,
                         fit: BoxFit.cover,
@@ -644,13 +845,14 @@ class HealthProgramsScreen extends StatelessWidget {
                             height: 60,
                             width: 60,
                             child: Center(child: CircularProgressIndicator()),
-                          ); 
+                          );
                         },
                         errorBuilder: (context, error, stackTrace) {
                           return const SizedBox(
                             height: 60,
                             width: 60,
-                            child: Icon(Icons.broken_image, size: 40, color: Colors.grey),
+                            child: Icon(Icons.broken_image,
+                                size: 40, color: Colors.grey),
                           );
                         },
                       ),
@@ -660,17 +862,33 @@ class HealthProgramsScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            programs[index]['title']!,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.teal.shade900,
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ProgramDetailScreen(
+                                    title: program["title"]!,
+                                    content: program["content"]!,
+                                    imageUrl: program["imageUrl"]!,
+                                    url: program["url"]!,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              program["title"]!,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue,
+                                decoration: TextDecoration.underline,
+                              ),
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            programs[index]['content']!,
+                            program["content"]!,
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.grey.shade700,
@@ -690,6 +908,87 @@ class HealthProgramsScreen extends StatelessWidget {
   }
 }
 
+class ProgramDetailScreen extends StatelessWidget {
+  final String title;
+  final String content;
+  final String imageUrl;
+  final String url;
+
+  const ProgramDetailScreen({
+    super.key,
+    required this.title,
+    required this.content,
+    required this.imageUrl,
+    required this.url,
+  });
+
+  Future<void> _launchURL() async {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      throw 'Could not launch $url';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+        backgroundColor: Colors.teal,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.network(
+                imageUrl,
+                height: 200,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return const SizedBox(
+                    height: 200,
+                    child: Center(
+                      child: Icon(
+                        Icons.broken_image,
+                        size: 80,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              content,
+              style: const TextStyle(
+                fontSize: 16,
+                color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _launchURL,
+              child: const Text("Learn More"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class WellnessScreen extends StatelessWidget {
   const WellnessScreen({super.key});
@@ -726,5 +1025,3 @@ class SuccessStoryScreen extends StatelessWidget {
     );
   }
 }
-
-
