@@ -6,7 +6,9 @@ import 'package:flutter_application_3/Settings_Screen.dart';
 import 'package:flutter_application_3/Shop_screen.dart';
 import 'package:flutter_application_3/aboutUs.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-
+import 'package:flutter_application_3/Prosection_screen.dart';
+import 'Explore_screen.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 void main() {
   runApp(const MyApp());
 }
@@ -26,7 +28,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// Dashboard Screen
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
@@ -65,6 +66,9 @@ class DashboardScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader(context),
+            const SizedBox(height: 4),
+            _buildAdSlider(),
+            const SizedBox(height: 10),
             _buildFeaturesSection(context),
             _buildServicesSection(context),
             _buildExpertiseSection(context),
@@ -87,6 +91,55 @@ class DashboardScreen extends StatelessWidget {
       bottomNavigationBar: _buildBottomNavigationBar(context),
     );
   }
+
+  // Ad Slider Section
+  Widget _buildAdSlider() {
+    List<String> adImages = [
+      'https://etimg.etb2bimg.com/thumb/msid-105205469,imgsize-15434,width-1200,height=765,overlay-ethealth/industry/early-detection-of-pre-diabetes-to-prevent-diabetes-need-of-the-hour.jpg',
+      'https://bpincontrol.in/wp-content/uploads/2023/08/Heart-Disease.jpg',
+      'https://therealhealth.org/wp-content/uploads/2024/04/child-diet-200x200.png'
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: CarouselSlider(
+        options: CarouselOptions(
+          height: 140.0,
+          autoPlay: true,
+          enlargeCenterPage: true,
+          aspectRatio: 20 / 10,
+          enableInfiniteScroll: true,
+          autoPlayInterval: const Duration(seconds: 4),
+        ),
+        items: adImages.map((image) {
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Image.network(
+              image,
+              fit: BoxFit.cover,
+              width: double.infinity,
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                return const Center(child: CircularProgressIndicator());
+              },
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  color: Colors.grey,
+                  child: const Center(
+                    child: Text(
+                      'Failed to load image',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                );
+              },
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
 
   Widget _buildSidebar(BuildContext context) {
     return Drawer(
@@ -259,7 +312,7 @@ class DashboardScreen extends StatelessWidget {
       ),
     );
   }
-}
+
 
 Future<void> _launchURL(String url) async {
   final uri = Uri.parse(url);
@@ -525,7 +578,7 @@ class PcodScreen extends StatelessWidget {
           SnackBar(content: Text('Error: $e')),
         );
       }
-      Navigator.pop(context); // Go back after launching URL
+      Navigator.pop(context); // Go back after launching URL 
     });
 
     // Show a blank screen or loader briefly
@@ -664,41 +717,80 @@ Widget _buildContactUsSection(BuildContext context) {
 
 // Modify the BottomNavigationBar with onTap handling
 Widget _buildBottomNavigationBar(BuildContext context) {
-  return BottomNavigationBar(
-    selectedItemColor: Colors.green,
-    unselectedItemColor: Colors.grey,
-    currentIndex: 0, // Default index
-    onTap: (index) {
-      // Navigate based on the selected index
-      switch (index) {
-        case 0: // Home
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const DashboardScreen()),
-          );
-          break;
-        case 1: // Tips
-          // Handle navigation to tips or any other screen
-          break;
-        case 2: // Support - Navigate to ChatSupportScreen
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AboutUsScreen()),
-          );
-          break;
-        case 3: // Contact - Navigate to Contact Screen
-          // Handle contact screen navigation
-          break;
-      }
+  final ValueNotifier<int> selectedIndexNotifier = ValueNotifier<int>(0);
+
+  return ValueListenableBuilder<int>(
+    valueListenable: selectedIndexNotifier,
+    builder: (context, selectedIndex, child) {
+      return BottomNavigationBar(
+        selectedItemColor: Colors.green,
+        unselectedItemColor: Colors.grey,
+        currentIndex: selectedIndex,
+        onTap: (index) {
+          selectedIndexNotifier.value = index;
+          switch (index) {
+            case 0:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const DashboardScreen()),
+              );
+              break;
+            case 1:
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const ProSectionScreen()),
+              );
+              break;
+            case 2:
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ExploreScreen()),
+              );
+              break;
+            case 3:
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AboutUsScreen()),
+              );
+              break;
+          }
+        },
+        items: [
+          _buildAnimatedNavItem(Icons.home, 'Home', 0, selectedIndex),
+          _buildAnimatedNavItem(
+              Icons.star_border_outlined, 'Pro', 1, selectedIndex),
+          _buildAnimatedNavItem(Icons.explore, 'Explore', 2, selectedIndex),
+          _buildAnimatedNavItem(Icons.support, 'About Us', 3, selectedIndex),
+          _buildAnimatedNavItem(
+              Icons.contact_page, 'Contact', 4, selectedIndex),
+        ],
+      );
     },
-    items: const [
-      BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-      BottomNavigationBarItem(icon: Icon(Icons.payment), label: 'Tips'),
-      BottomNavigationBarItem(icon: Icon(Icons.support), label: 'About Us'),
-      BottomNavigationBarItem(icon: Icon(Icons.contact_page), label: 'Contact'),
-    ],
   );
 }
+
+// Add this new helper method
+BottomNavigationBarItem _buildAnimatedNavItem(
+  IconData icon,
+  String label,
+  int index,
+  int selectedIndex,
+) {
+  final isSelected = index == selectedIndex;
+
+  return BottomNavigationBarItem(
+    icon: AnimatedScale(
+      scale: isSelected ? 2.3 : 1.0,
+      duration: const Duration(milliseconds: 200),
+      child: Icon(icon),
+    ),
+    label: label,
+  );
+}
+
+// Additional Screens
 
 // Additional Screens
 class NotificationsScreen extends StatelessWidget {
@@ -1025,3 +1117,4 @@ class SuccessStoryScreen extends StatelessWidget {
     );
   }
 }
+
