@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      home: const OtpScreen(phoneNumber: "1234567890"), // Start with OtpScreen
+      home: const OtpScreen(phoneNumber: ""), // Start with OtpScreen
     );
   }
 
