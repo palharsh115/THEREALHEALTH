@@ -299,6 +299,20 @@ mongoose.connect(process.env.MONGO_URI, {
 }).then(() => console.log("✅ MongoDB Connected"))
   .catch((err) => console.error("❌ MongoDB Connection Error:", err));
 
+  
+  //schema for questionair...
+  const QuestionnaireSchema = new mongoose.Schema({
+    question: { type: String, required: true },
+    answer: { type: String, required: true }, // "Yes" or "No"
+  });
+  
+  // Schema for storing health conditions with their questionnaire responses
+  const HealthConditionSchema = new mongoose.Schema({
+    conditionName: { type: String, required: true }, // Example: "Diabetes", "Thyroid"
+    questionnaireResponses: [QuestionnaireSchema], // Stores responses for each condition
+  });
+   
+
 // User Schema (Phone is Primary ID)
 const userSchema = new mongoose.Schema({
   _id: { type: String, required: true }, // Phone number as _id
@@ -311,8 +325,11 @@ const userSchema = new mongoose.Schema({
     date: { type: String, required: true },
     timeSlot: { type: String, required: true },
     status: { type: String, enum: ["pending", "confirmed", "canceled"], default: "pending" }
-  }]
-}, { timestamps: true });
+  }],
+ 
+healthConditions: [HealthConditionSchema] // Stores selected conditions & responses
+},
+{ timestamps: true });
 
 const User = mongoose.model("User", userSchema);
 
@@ -352,11 +369,11 @@ app.post("/send-otp", async (req, res) => {
   try {
     await OTP.create({ phone, otp });
 
-    let user = await User.findById(phone);
-    if (!user) {
-      user = new User({ _id: phone });
-      await user.save();
-    }
+    // let user = await User.findById(phone);
+    // if (!user) {
+    //   user = new User({ _id: phone });
+    //   await user.save();
+    // }
 
     await client.messages.create({
       body: `Your OTP code is: ${otp}`,
@@ -370,26 +387,75 @@ app.post("/send-otp", async (req, res) => {
   }
 });
 
-// Verify OTP API
+// // Verify OTP API
+// app.post("/verify-otp", async (req, res) => {
+//   try {
+//     const { phone, otp } = req.body;
+//     if (!phone || !otp) return res.status(400).json({ message: "Phone and OTP are required" });
+
+//     const record = await OTP.findOne({ phone });
+//     if (!record || String(record.otp) !== String(otp)) {
+//       return res.status(401).json({ message: "Invalid or expired OTP" });
+//     }
+
+//     await OTP.deleteMany({ phone });
+
+//     let user = await User.findById(phone);
+
+//     const token = jwt.sign({ phone }, JWT_SECRET, { expiresIn: "1h" });
+
+//     res.json({ message: "OTP verified successfully", token });
+
+//     if (user) {
+//       res.json({ message: "User exists, logging in", token, isNewUser: false });
+//     } else {
+//       res.json({ message: "New user, proceed to registration", token, isNewUser: true });
+//     }
+//   } catch (error) {
+//     res.status(500).json({ message: "Internal server error", error: error.message });
+//   }
+// });
+//verify otp 
 app.post("/verify-otp", async (req, res) => {
   try {
     const { phone, otp } = req.body;
-    if (!phone || !otp) return res.status(400).json({ message: "Phone and OTP are required" });
+    if (!phone || !otp) {
+      return res.status(400).json({ message: "Phone and OTP are required" });
+    }
 
+    // Find OTP record
     const record = await OTP.findOne({ phone });
     if (!record || String(record.otp) !== String(otp)) {
       return res.status(401).json({ message: "Invalid or expired OTP" });
     }
 
+    // Delete OTP after verification
     await OTP.deleteMany({ phone });
 
+    // ✅ Fix: Use findOne instead of findById
+    let user = await User.findOne({ _id: phone });
+    let isNewUser = false;
+
+    if (!user) {
+      isNewUser = true;
+      user = new User({ _id: phone }); // Create user with phone as _id
+      await user.save();
+    }
+
+    // ✅ Generate JWT token for both new & existing users
     const token = jwt.sign({ phone }, JWT_SECRET, { expiresIn: "1h" });
 
-    res.json({ message: "OTP verified successfully", token });
+    return res.json({
+      message: isNewUser ? "New user created, proceed to registration" : "User exists, logging in",
+      token,
+      isNewUser,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error: error.message });
+    console.error("Error in /verify-otp:", error);
+    return res.status(500).json({ message: "Internal server error", error: error.message });
   }
 });
+
 
 // Submit Form API (Updates User Data)
 app.post("/submit-form", authenticateUser, async (req, res) => {
@@ -430,6 +496,97 @@ app.post("/book-appointment", authenticateUser, async (req, res) => {
   }
 });
 
+// api end poit to save health condition data...
+app.post("/submit-health-data", authenticateUser, async (req, res) => {
+  try {
+    const phone = req.user.phone;
+    const { selectedCondition, otherCondition, questionnaireResponses } = req.body;
+
+    if (!selectedCondition) {
+      return res.status(400).json({ message: "Health condition is required" });
+    }
+
+    // Find user
+    let user = await User.findById(phone);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if the condition already exists
+    const existingCondition = user.healthConditions.find(
+      (condition) => condition.conditionName === selectedCondition
+    );
+
+    if (existingCondition) {
+      // Update existing condition responses
+      existingCondition.questionnaireResponses = questionnaireResponses || [];
+    } else {
+      // Add new health condition entry
+      user.healthConditions.push({
+        conditionName: selectedCondition,
+        questionnaireResponses: questionnaireResponses || [],
+      });
+    }
+
+    // If "Other" condition is provided, save it
+    if (selectedCondition === "Others" && otherCondition) {
+      user.healthConditions.push({
+        conditionName: otherCondition,
+        questionnaireResponses: questionnaireResponses || [],
+      });
+    }
+
+    // Save the updated user data
+    await user.save();
+
+    res.status(200).json({ message: "Health data submitted successfully", user });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error", details: error.message });
+  }
+});
+
+// get questionair user data ...
+app.post("/submit-questionnaire", authenticateUser, async (req, res) => {
+  try {
+    const phone = req.user.phone;
+    const { conditionName, responses } = req.body;
+
+    if (!conditionName || !responses || !Array.isArray(responses)) {
+      return res.status(400).json({ message: "Invalid request format" });
+    }
+
+    // Find user
+    let user = await User.findById(phone);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if the health condition exists
+    const existingCondition = user.healthConditions.find(
+      (condition) => condition.conditionName === conditionName
+    );
+
+    if (existingCondition) {
+      // Update existing responses
+      existingCondition.questionnaireResponses = responses;
+    } else {
+      // Add new condition with responses
+      user.healthConditions.push({
+        conditionName,
+        questionnaireResponses: responses,
+      });
+    }
+
+    // Save user data
+    await user.save();
+
+    res.status(200).json({ message: "Questionnaire submitted successfully", user });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error", details: error.message });
+  }
+});
+
+
 // Get User Details API
 app.get("/get-user", authenticateUser, async (req, res) => {
   try {
@@ -442,5 +599,20 @@ app.get("/get-user", authenticateUser, async (req, res) => {
     res.status(500).json({ error: "Internal server error", details: error.message });
   }
 });
+
+// get health condition with questionair data...
+app.get("/get-user-health", authenticateUser, async (req, res) => {
+  try {
+    const phone = req.user.phone;
+    
+    const user = await User.findById(phone).select("healthConditions");
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.json(user.healthConditions);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error", details: error.message });
+  }
+});
+
 
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));

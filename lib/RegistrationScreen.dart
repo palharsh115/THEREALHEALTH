@@ -374,6 +374,7 @@ import 'dashboard_screen.dart';
 import 'package:flutter_application_3/qna_screen3.dart';
 
 class RegistrationScreen extends StatefulWidget {
+  
   const RegistrationScreen({super.key});
 
   @override
@@ -463,7 +464,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> with SingleTick
                     builder: (context) => DashboardScreen(userName: _nameController.text),
                   ),
                 );
-              },
+              }, 
             ),
           ),
         );
