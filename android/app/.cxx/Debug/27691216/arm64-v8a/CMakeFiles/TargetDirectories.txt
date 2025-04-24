@@ -1,0 +1,2 @@
+C:/Users/ajjup/Downloads/THEREALHEALTH-master/THEREALHEALTH-master/android/app/.cxx/Debug/27691216/arm64-v8a/CMakeFiles/edit_cache.dir
+C:/Users/ajjup/Downloads/THEREALHEALTH-master/THEREALHEALTH-master/android/app/.cxx/Debug/27691216/arm64-v8a/CMakeFiles/rebuild_cache.dir
