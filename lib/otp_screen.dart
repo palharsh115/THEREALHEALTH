@@ -3,9 +3,12 @@
 
 
 
+<<<<<<< HEAD
 
 
 
+=======
+>>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -13,8 +16,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'package:flutter_application_3/RegistrationScreen.dart';
 import 'dashboard_screen.dart';
+<<<<<<< HEAD
 import 'Admin_dashboard.dart';
 import 'package:flutter_application_3/base_url.dart';
+=======
+>>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
 
 class OtpScreen extends StatefulWidget {
   final String phoneNumber;
@@ -63,6 +69,7 @@ class _OtpScreenState extends State<OtpScreen> with SingleTickerProviderStateMix
     super.dispose();
   }
 
+<<<<<<< HEAD
 ////.../////
 ///
 ///
@@ -73,6 +80,14 @@ Future<void> _saveUserData(String token, String role) async {
   await prefs.setString("user_role", role); // Save user role
   print("✅ Token & Role saved successfully: $token, Role: $role");
 }
+=======
+  // Save token in SharedPreferences
+  Future<void> _saveUserToken(String token) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString("auth_token", token);
+    print("✅ Token saved successfully: $token");
+  }
+>>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
 
 Future<void> _verifyOTP() async {
   String otp = _otpControllers.map((controller) => controller.text).join();
@@ -87,7 +102,11 @@ Future<void> _verifyOTP() async {
 
   try {
     final response = await http.post(
+<<<<<<< HEAD
       Uri.parse("$baseUrl/api/auth/verify-otp"),
+=======
+      Uri.parse("http://10.0.2.2:3000/verify-otp"),
+>>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({"phone": widget.phoneNumber, "otp": otp}),
     );
@@ -95,6 +114,7 @@ Future<void> _verifyOTP() async {
     final data = jsonDecode(response.body);
 
     if (response.statusCode == 200) {
+<<<<<<< HEAD
       bool isNewUser = data['isNewUser'] ?? true;
       String? token = data['token'];
       String? role = data['role']; // Extract role from response
@@ -111,6 +131,16 @@ Future<void> _verifyOTP() async {
           MaterialPageRoute(builder: (context) => AdminDashboardScreen()),
         );
       } else if (!isNewUser) {
+=======
+      bool isNewUser = data['isNewUser'] ?? true; // Default to true if not provided
+      String? token = data['token']; 
+
+      if (token != null) {
+        await _saveUserToken(token); // ✅ Save token for both new & existing users
+      }
+
+      if (!isNewUser) {
+>>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
         _showSnackBar('Login successful!');
         Navigator.pushReplacement(
           context,
@@ -136,7 +166,10 @@ Future<void> _verifyOTP() async {
   }
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
   // Resend OTP API call
   Future<void> _resendOTP() async {
     setState(() {
@@ -146,7 +179,11 @@ Future<void> _verifyOTP() async {
 
     try {
       final response = await http.post(
+<<<<<<< HEAD
         Uri.parse("$baseUrl/api/auth/resend-otp"),
+=======
+        Uri.parse("http://10.0.2.2:3000/resend-otp"),
+>>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"phone": widget.phoneNumber}),
       );

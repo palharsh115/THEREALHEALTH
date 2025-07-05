@@ -339,7 +339,10 @@ import 'package:flutter_application_3/healthquestionaire_screen.dart';
 import 'package:flutter_application_3/pcod_screen.dart';
 import 'package:flutter_application_3/thyroid_screen.dart';
 import 'package:flutter_application_3/underweightscreen.dart';
+<<<<<<< HEAD
 import 'package:flutter_application_3/base_url.dart';
+=======
+>>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
 
 class MultipleChoiceQuestionScreen2 extends StatefulWidget {
   final String userName;
@@ -365,7 +368,11 @@ class _MultipleChoiceQuestionScreenState
   late Animation<double> _buttonScaleAnimation;
 
   // Backend API URL
+<<<<<<< HEAD
   static final String _apiUrl = "$baseUrl/api/user/submit-health-data"; 
+=======
+  static const String _apiUrl = "http://10.0.2.2:3000/submit-health-data"; 
+>>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
 
   @override
   void initState() {

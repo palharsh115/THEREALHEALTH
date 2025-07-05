@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
 import 'package:flutter_application_3/base_url.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -6,6 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_application_3/base_url.dart';
 import 'package:flutter_application_3/login_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
+=======
+>>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -13,6 +16,7 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+<<<<<<< HEAD
       appBar: AppBar(
         title: const Text('Settings'),
         backgroundColor: const Color.fromARGB(255, 42, 131, 36),
@@ -64,11 +68,38 @@ class SettingsScreen extends StatelessWidget {
             },
           ),
           const Divider(),
+=======
+      appBar: AppBar(title: const Text('Settings')),
+      body: ListView(
+        padding: const EdgeInsets.all(16.0),
+        children: const [
+          ListTile(
+            leading: Icon(Icons.person, color: Colors.green),
+            title: Text('Profile'),
+            subtitle: Text('Manage your profile and personal information'),
+          ),
+          ListTile(
+            leading: Icon(Icons.notifications, color: Colors.green),
+            title: Text('Notifications'),
+            subtitle: Text('Manage notification preferences'),
+          ),
+          ListTile(
+            leading: Icon(Icons.privacy_tip, color: Colors.green),
+            title: Text('Privacy'),
+            subtitle: Text('Manage privacy settings'),
+          ),
+          ListTile(
+            leading: Icon(Icons.info, color: Colors.green),
+            title: Text('About Us'),
+            subtitle: Text('Learn more about The Real Health'),
+          ),
+>>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
         ],
       ),
     );
   }
 }
+<<<<<<< HEAD
 
 // Profile Information Screen
 class ProfileInformationScreen extends StatefulWidget {
@@ -658,3 +689,5 @@ class TermsAndPrivacyPolicyScreen extends StatelessWidget {
     );
   }
 }
+=======
+>>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c

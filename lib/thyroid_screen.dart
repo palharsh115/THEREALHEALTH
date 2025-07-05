@@ -183,7 +183,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_3/dashboard_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+<<<<<<< HEAD
 import 'package:flutter_application_3/base_url.dart';
+=======
+>>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
 
 class ThyroidQuestionnaireScreen extends StatefulWidget {
   const ThyroidQuestionnaireScreen({super.key});
@@ -204,7 +207,11 @@ class _ThyroidQuestionnaireScreenState extends State<ThyroidQuestionnaireScreen>
 
   final Map<int, bool?> _answers = {};
   bool _isLoading = false;
+<<<<<<< HEAD
   static final String _apiUrl = "$baseUrl/api/user/submit-health-data";
+=======
+  static const String _apiUrl = "http://10.0.2.2:3000/submit-health-data";
+>>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
 
   Future<String?> _getUserToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

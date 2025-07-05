@@ -136,7 +136,10 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_application_3/dashboard_screen.dart';
+<<<<<<< HEAD
 import 'package:flutter_application_3/base_url.dart';
+=======
+>>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
 
 class CholesterolQuestionnaireScreen extends StatefulWidget {
   const CholesterolQuestionnaireScreen({super.key});
@@ -194,7 +197,11 @@ class _CholesterolQuestionnaireScreenState
       };
     }).toList();
 
+<<<<<<< HEAD
     final url = Uri.parse("$baseUrl/api/user/submit-health-data");
+=======
+    final url = Uri.parse("http://10.0.2.2:3000/submit-health-data");
+>>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
 
     try {
       final response = await http.post(
