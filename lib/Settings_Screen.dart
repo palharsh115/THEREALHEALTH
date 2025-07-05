@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
 import 'package:flutter_application_3/base_url.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_application_3/base_url.dart';
 import 'package:flutter_application_3/login_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
-=======
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -16,7 +12,6 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-<<<<<<< HEAD
       appBar: AppBar(
         title: const Text('Settings'),
         backgroundColor: const Color.fromARGB(255, 42, 131, 36),
@@ -68,38 +63,11 @@ class SettingsScreen extends StatelessWidget {
             },
           ),
           const Divider(),
-=======
-      appBar: AppBar(title: const Text('Settings')),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: const [
-          ListTile(
-            leading: Icon(Icons.person, color: Colors.green),
-            title: Text('Profile'),
-            subtitle: Text('Manage your profile and personal information'),
-          ),
-          ListTile(
-            leading: Icon(Icons.notifications, color: Colors.green),
-            title: Text('Notifications'),
-            subtitle: Text('Manage notification preferences'),
-          ),
-          ListTile(
-            leading: Icon(Icons.privacy_tip, color: Colors.green),
-            title: Text('Privacy'),
-            subtitle: Text('Manage privacy settings'),
-          ),
-          ListTile(
-            leading: Icon(Icons.info, color: Colors.green),
-            title: Text('About Us'),
-            subtitle: Text('Learn more about The Real Health'),
-          ),
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
         ],
       ),
     );
   }
 }
-<<<<<<< HEAD
 
 // Profile Information Screen
 class ProfileInformationScreen extends StatefulWidget {
@@ -115,20 +83,19 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
   final _weightController = TextEditingController();
   final _heightController = TextEditingController();
 
-  String? _userId; // Add a variable to store the user ID
-
+  String? _userId;
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     _loadUserDetails();
-      }
+  }
 
   Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
-    print("Retrieved Token: $token"); // Debug log
+    print("Retrieved Token: $token");
     return token;
   }
 
@@ -144,7 +111,7 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
       }
 
       final url = '$baseUrl/api/user/user/details';
-      print("Request URL: $url"); // Debug log
+      print("Request URL: $url");
       final response = await http.get(
         Uri.parse(url),
         headers: {'Authorization': 'Bearer $token'},
@@ -159,18 +126,18 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
 
         // Save user ID and token in SharedPreferences
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('user_id', user['_id']); // Save user ID
-        await prefs.setString('auth_token', token); // Save token
+        await prefs.setString('user_id', user['_id']);
+        await prefs.setString('auth_token', token);
 
         setState(() {
-          _userId = user['_id']; // Save the user ID in the state
+          _userId = user['_id'];
           _nameController.text = user['name'] ?? '';
           _ageController.text = user['age']?.toString() ?? '';
           _weightController.text = user['weight']?.toString() ?? '';
           _heightController.text = user['height']?.toString() ?? '';
         });
 
-        print("User ID: $_userId"); // Debug log
+        print("User ID: $_userId");
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('User details loaded')),
         );
@@ -194,14 +161,14 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
     try {
       String? token = await _getToken();
       if (token == null || _userId == null) {
-        print("Error: Authentication token or user ID not found."); // Debug log
+        print("Error: Authentication token or user ID not found.");
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Authentication token or user ID not found')),
         );
         return;
       }
 
-      final url = '$baseUrl/api/user/user/update/$_userId'; // Include user ID in the URL
+      final url = '$baseUrl/api/user/user/update/$_userId';
       final userData = {
         'name': _nameController.text,
         'age': int.tryParse(_ageController.text),
@@ -209,9 +176,9 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
         'height': double.tryParse(_heightController.text),
       };
 
-      print("Request URL: $url"); // Debug log
-      print("Request Headers: {Authorization: Bearer $token, Content-Type: application/json}"); // Debug log
-      print("Request Body: ${json.encode(userData)}"); // Debug log
+      print("Request URL: $url");
+      print("Request Headers: {Authorization: Bearer $token, Content-Type: application/json}");
+      print("Request Body: ${json.encode(userData)}");
 
       final response = await http.put(
         Uri.parse(url),
@@ -222,23 +189,23 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
         body: json.encode(userData),
       );
 
-      print("Response Status Code: ${response.statusCode}"); // Debug log
-      print("Response Body: ${response.body}"); // Debug log
+      print("Response Status Code: ${response.statusCode}");
+      print("Response Body: ${response.body}");
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        print("User details updated successfully: ${data['message']}"); // Debug log
+        print("User details updated successfully: ${data['message']}");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(data['message'] ?? 'Profile updated successfully')),
         );
       } else {
-        print("Failed to update user details: ${response.body}"); // Debug log
+        print("Failed to update user details: ${response.body}");
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to update profile')),
         );
       }
     } catch (e) {
-      print('Error updating user details: $e'); // Debug log
+      print('Error updating user details: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error updating user details')),
       );
@@ -329,12 +296,9 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
   bool _isLoading = false;
 
   Future<void> _manageDataSharing(BuildContext context) async {
-    // Example: Toggle data sharing preference
     try {
       final prefs = await SharedPreferences.getInstance();
       bool isDataSharingEnabled = prefs.getBool('data_sharing') ?? true;
-
-      // Toggle the preference
       isDataSharingEnabled = !isDataSharingEnabled;
       await prefs.setBool('data_sharing', isDataSharingEnabled);
 
@@ -356,11 +320,11 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
   }
 
   Future<void> _deleteAccount(BuildContext context) async {
-    setState(() => _isLoading = true); // Optional: Show a loading indicator
+    setState(() => _isLoading = true);
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token');
-      final userId = prefs.getString('user_id'); // Retrieve the user ID from SharedPreferences
+      final userId = prefs.getString('user_id');
 
       if (token == null || userId == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -369,8 +333,8 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
         return;
       }
 
-      final url = '$baseUrl/api/user/user/delete/$userId'; // Use the user ID in the URL
-      print("Request URL: $url"); // Debug log
+      final url = '$baseUrl/api/user/user/delete/$userId';
+      print("Request URL: $url");
 
       final response = await http.delete(
         Uri.parse(url),
@@ -386,11 +350,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Account deleted successfully')),
         );
-
-        // Clear user data
         await prefs.clear();
-
-        // Redirect to login screen
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -407,12 +367,11 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
         const SnackBar(content: Text('Error deleting account')),
       );
     } finally {
-      setState(() => _isLoading = false); // Optional: Hide the loading indicator
+      setState(() => _isLoading = false);
     }
   }
 
   void _viewTermsAndPrivacyPolicy(BuildContext context) {
-    // Example: Navigate to a Terms and Privacy Policy screen
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -502,7 +461,7 @@ class AppSettingsScreen extends StatelessWidget {
 class TermsAndPrivacyPolicyScreen extends StatelessWidget {
   const TermsAndPrivacyPolicyScreen({super.key});
   
- Future<void> _launchURL(String url) async {
+  Future<void> _launchURL(String url) async {
     final Uri uri = Uri.parse(url);
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       throw 'Could not launch $url';
@@ -689,5 +648,3 @@ class TermsAndPrivacyPolicyScreen extends StatelessWidget {
     );
   }
 }
-=======
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c

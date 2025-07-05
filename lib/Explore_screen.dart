@@ -5,21 +5,13 @@ class Recipe {
   final String name;
   final List<String> ingredients;
   final List<String> preparationSteps;
-<<<<<<< HEAD
   final String imageUrl;
-=======
-  final String imageUrl; // New field for image URL
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
 
   Recipe({
     required this.name,
     required this.ingredients,
     required this.preparationSteps,
-<<<<<<< HEAD
     required this.imageUrl,
-=======
-    required this.imageUrl, // Initialize imageUrl in constructor
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
   });
 }
 
@@ -48,11 +40,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
         'Drink before bedtime for relaxation.'
       ],
       imageUrl:
-<<<<<<< HEAD
           'https://eu-images.contentstack.com/v3/assets/bltd5b5e8fe28aae49e/blt491352bb97523d03/6694f54e1a46653875a73a36/Ashwagandha-root-powder-drink_iStock_eskymaks_1333961108.png?width=1280&auto=webp&quality=95&format=jpg&disable=upscale',
-=======
-          'https://eu-images.contentstack.com/v3/assets/bltd5b5e8fe28aae49e/blt491352bb97523d03/6694f54e1a46653875a73a36/Ashwagandha-root-powder-drink_iStock_eskymaks_1333961108.png?width=1280&auto=webp&quality=95&format=jpg&disable=upscale', // Sample image URL
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
     ),
     Recipe(
       name: 'Turmeric Ginger Tea',
@@ -70,11 +58,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
         'Add honey if desired and enjoy!'
       ],
       imageUrl:
-<<<<<<< HEAD
           'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmEBG_vevEy9YDWjwE-83jbHR5JMlCHs3Zeg&s',
-=======
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmEBG_vevEy9YDWjwE-83jbHR5JMlCHs3Zeg&s', // Sample image URL
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
     ),
     Recipe(
       name: 'Moringa Soup',
@@ -92,14 +76,9 @@ class _ExploreScreenState extends State<ExploreScreen> {
         'Blend the mixture if you prefer a smoother texture.'
       ],
       imageUrl:
-<<<<<<< HEAD
           'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgZy3qQlJ-61ntpGIDvHjWlYGGXwcq3P7_UQ&s',
     ),
-=======
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgZy3qQlJ-61ntpGIDvHjWlYGGXwcq3P7_UQ&s', // Sample image URL
-    ),
     // Add more recipes as needed...
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
   ];
 
   List<Recipe> filteredRecipes = [];
@@ -138,7 +117,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-<<<<<<< HEAD
         title: const Text('Explore Recipes'),
         backgroundColor: Colors.teal,
         elevation: 0,
@@ -223,57 +201,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
             ),
           ),
         ],
-=======
-        title: const Text('Explore '),
-        backgroundColor: Colors.teal,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            const Text(
-              '',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.teal,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 30),
-            // Search Bar
-            TextField(
-              onChanged: _filterRecipes,
-              decoration: const InputDecoration(
-                hintText: 'Search for Recipes...',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.search),
-              ),
-            ),
-            const SizedBox(height: 20),
-            // List of Recipes with Images
-            Expanded(
-              child: ListView.builder(
-                itemCount: filteredRecipes.length,
-                itemBuilder: (context, index) {
-                  final recipe = filteredRecipes[index];
-                  return ListTile(
-                    leading: Image.network(
-                      recipe.imageUrl, // Display image for each recipe
-                      width: 100,
-                      height: 50,
-                      fit: BoxFit.cover,
-                    ),
-                    title: Text(recipe.name),
-                    trailing: const Icon(Icons.arrow_forward),
-                    onTap: () => _navigateToRecipeDetail(recipe),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
       ),
     );
   }
@@ -291,70 +218,44 @@ class RecipeDetailScreen extends StatelessWidget {
         title: Text(recipe.name),
         backgroundColor: Colors.teal,
       ),
-<<<<<<< HEAD
       body: SingleChildScrollView(
-=======
-      body: Padding(
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-<<<<<<< HEAD
             // Recipe Image
-            ClipRRect(
-              borderRadius: BorderRadius.circular(15),
-              child: Image.network(
-                recipe.imageUrl,
-                width: double.infinity,
-=======
-            // Display the recipe image
             Center(
-              child: Image.network(
-                recipe.imageUrl,
-                width: 400,
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
-                height: 200,
-                fit: BoxFit.cover,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: Image.network(
+                  recipe.imageUrl,
+                  width: 400,
+                  height: 200,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
             const SizedBox(height: 20),
             const Text(
-<<<<<<< HEAD
               'Ingredients',
-=======
-              'Ingredients:',
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             for (var ingredient in recipe.ingredients)
               Text(
                 '• $ingredient',
-<<<<<<< HEAD
                 style: const TextStyle(fontSize: 16),
               ),
             const SizedBox(height: 20),
             const Text(
               'Preparation Steps',
-=======
-                style: const TextStyle(fontSize: 18),
-              ),
-            const SizedBox(height: 20),
-            const Text(
-              'Preparation Steps:',
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             for (var step in recipe.preparationSteps)
               Text(
                 '• $step',
-<<<<<<< HEAD
                 style: const TextStyle(fontSize: 16),
-=======
-                style: const TextStyle(fontSize: 18),
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
               ),
           ],
         ),

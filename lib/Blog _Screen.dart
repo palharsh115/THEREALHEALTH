@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
@@ -15,14 +14,6 @@ class BlogScreen extends StatefulWidget {
 class _BlogScreenState extends State<BlogScreen> {
   // Static blogs
   final List<Map<String, String>> staticBlogs = [
-=======
-import 'package:url_launcher/url_launcher.dart';
-
-class BlogScreen extends StatelessWidget {
-  const BlogScreen({super.key});
-
-  final List<Map<String, String>> blogs = const [
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
     {
       "title": "Meditation Tips for Beginners",
       "description":
@@ -73,7 +64,6 @@ class BlogScreen extends StatelessWidget {
     },
   ];
 
-<<<<<<< HEAD
   // List to hold both static and backend blogs
   final List<Map<String, String>> blogs = [];
 
@@ -100,6 +90,7 @@ class BlogScreen extends StatelessWidget {
                 "title": blog["title"] ?? "No Title", // Default value if null
                 "description": blog["description"] ?? "No Description",
                 "imageUrl": blog["image"] ?? "", // Public URL for the image
+                "url": blog["url"] ?? "",
               }));
         });
       } else {
@@ -110,11 +101,7 @@ class BlogScreen extends StatelessWidget {
     }
   }
 
-   // ignore: unused_element
-   Future<void> _launchURL(String url) async {
-=======
   Future<void> _launchURL(String url) async {
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
     final Uri uri = Uri.parse(url);
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       throw 'Could not launch $url';
@@ -123,11 +110,7 @@ class BlogScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-<<<<<<< HEAD
     final screenWidth = MediaQuery.of(context).size.width;
-
-=======
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
     return Scaffold(
       appBar: AppBar(
         title: const Text('Blogs'),
@@ -136,7 +119,6 @@ class BlogScreen extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-<<<<<<< HEAD
         child: blogs.isEmpty
             ? const Center(child: CircularProgressIndicator())
             : ListView.builder(
@@ -144,20 +126,8 @@ class BlogScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final blog = blogs[index];
 
-                  return GestureDetector(
-                    onTap: () {
-                      // Navigate to the BlogDetailScreen
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => BlogDetailScreen(
-                            title: blog['title']!,
-                            description: blog['description']!,
-                            imageUrl: blog['imageUrl']!,
-                          ),
-                        ),
-                      );
-                    },
+                  return InkWell(
+                    onTap: () => _launchURL(blog['url']!),
                     child: Card(
                       elevation: 4,
                       margin: const EdgeInsets.symmetric(vertical: 10),
@@ -169,22 +139,18 @@ class BlogScreen extends StatelessWidget {
                         children: [
                           // Blog Image
                           ClipRRect(
-                            borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(12)),
+                            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                             child: blog['imageUrl']!.isNotEmpty
                                 ? Image.network(
                                     blog['imageUrl']!,
                                     width: double.infinity,
-                                    height: screenWidth * 0.45, // Responsive height
+                                    height: screenWidth * 0.45,
                                     fit: BoxFit.cover,
-                                    errorBuilder:
-                                        (context, error, stackTrace) {
-                                      return const Icon(Icons.broken_image,
-                                          size: 180);
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return const Icon(Icons.broken_image, size: 180);
                                     },
                                   )
-                                : const Icon(Icons.image_not_supported,
-                                    size: 180),
+                                : const Icon(Icons.image_not_supported, size: 180),
                           ),
                           // Blog Title and Description
                           Padding(
@@ -211,61 +177,11 @@ class BlogScreen extends StatelessWidget {
                                   ),
                                 ),
                               ],
-=======
-        child: ListView.builder(
-          itemCount: blogs.length,
-          itemBuilder: (context, index) {
-            final blog = blogs[index];
-
-            return InkWell(
-              onTap: () => _launchURL(blog['url']!),
-              child: Card(
-                elevation: 4,
-                margin: const EdgeInsets.symmetric(vertical: 10),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Blog Image
-                    ClipRRect(
-                      borderRadius:
-                          const BorderRadius.vertical(top: Radius.circular(12)),
-                      child: Image.network(
-                        blog['imageUrl']!,
-                        width: double.infinity,
-                        height: 180,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    // Blog Title and Description
-                    Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            blog['title']!,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            blog['description']!,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.black87,
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
                             ),
                           ),
                         ],
                       ),
                     ),
-<<<<<<< HEAD
                   );
                 },
               ),
@@ -342,13 +258,6 @@ class BlogDetailScreen extends StatelessWidget {
               ),
             ),
           ],
-=======
-                  ],
-                ),
-              ),
-            );
-          },
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
         ),
       ),
     );

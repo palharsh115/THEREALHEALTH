@@ -1,32 +1,22 @@
-<<<<<<< HEAD
 import 'dart:convert'; // For JSON decoding
 import 'package:flutter_application_3/base_url.dart';
 import 'package:http/http.dart' as http; // For HTTP requests
-=======
-
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_3/Appointment_Screen.dart';
-import 'package:flutter_application_3/Blog%20_Screen.dart';
 import 'package:flutter_application_3/Settings_Screen.dart';
 import 'package:flutter_application_3/Shop_screen.dart';
 import 'package:flutter_application_3/aboutUs.dart';
-<<<<<<< HEAD
 // ignore: unused_import
-=======
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_application_3/Prosection_screen.dart';
 import 'Explore_screen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'login_screen.dart';
-<<<<<<< HEAD
 import 'package:flutter_application_3/base_url.dart';
-import 'package:flutter_application_3/Consultation_screen.dart';
-=======
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
+import 'package:flutter_application_3/consultation_screen.dart';
+import 'package:flutter_application_3/Blog _Screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -42,12 +32,11 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      home:  const DashboardScreen(),
+      home: const DashboardScreen(),
     );
   }
 }
 
-<<<<<<< HEAD
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
@@ -59,12 +48,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String? userName;
 
   @override
- void initState() {
+  void initState() {
     super.initState();
     _fetchUserDetails();
   }
 
-  
   // Fetch user details
   Future<void> _fetchUserDetails() async {
     final prefs = await SharedPreferences.getInstance();
@@ -77,7 +65,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     try {
       final response = await http.get(
-        Uri.parse("$baseUrl/api/user/user/details"), // Replace with your backend URL
+        Uri.parse(
+            "$baseUrl/api/user/user/details"), // Replace with your backend URL
         headers: {
           "Authorization": "Bearer $token",
         },
@@ -99,50 +88,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-=======
-class DashboardScreen extends StatelessWidget {
-  // const DashboardScreen({super.key});
-  final String? userName; // Add this line
-
-  const DashboardScreen({super.key, this.userName});
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('The Real Health'),
         centerTitle: true,
-<<<<<<< HEAD
         backgroundColor: const Color.fromARGB(255, 145, 221, 207),
       ),
       drawer: const Sidebar(), // Add the Sidebar here
-=======
-        backgroundColor: const Color.fromARGB(
-            255, 145, 221, 207), // Change to a pastel light blue
-        titleTextStyle: const TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: Color(0xFF3A3B3C), // Neutral dark color for contrast
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications,
-                color: Color.fromARGB(255, 58, 60, 58)),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const NotificationsScreen()),
-              );
-            },
-          ),
-        ],
-        iconTheme:
-            const IconThemeData(color: Color(0xFF3A3B3C)), // Sidebar icon color
-      ),
-      drawer: const Sidebar(),
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -159,7 +113,6 @@ class DashboardScreen extends StatelessWidget {
           ],
         ),
       ),
-<<<<<<< HEAD
       bottomNavigationBar: _buildBottomNavigationBar(context), // Add this line
     );
   }
@@ -202,20 +155,6 @@ class DashboardScreen extends StatelessWidget {
           ),
         ],
       ),
-=======
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const ChatSupportScreen()),
-          );
-        },
-        label: const Text('Support'),
-        icon: const Icon(Icons.chat),
-        backgroundColor: const Color.fromARGB(255, 229, 232, 229),
-      ),
-      bottomNavigationBar: _buildBottomNavigationBar(context),
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
     );
   }
 
@@ -224,11 +163,7 @@ class DashboardScreen extends StatelessWidget {
     List<String> adImages = [
       'https://etimg.etb2bimg.com/thumb/msid-105205469,imgsize-15434,width-1200,height=765,overlay-ethealth/industry/early-detection-of-pre-diabetes-to-prevent-diabetes-need-of-the-hour.jpg',
       'https://bpincontrol.in/wp-content/uploads/2023/08/Heart-Disease.jpg',
-<<<<<<< HEAD
       'https://therealhealth.org/wp/content/uploads/2024/04/child-diet-200x200.png'
-=======
-      'https://therealhealth.org/wp-content/uploads/2024/04/child-diet-200x200.png'
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
     ];
 
     return Padding(
@@ -271,141 +206,8 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 }
-<<<<<<< HEAD
+
 // Sidebar Widget
-=======
-
-  // Widget _buildSidebar(BuildContext context) {
-  //   return Drawer(
-  //     child: ListView(
-  //       children: [
-  //         const UserAccountsDrawerHeader(
-  //           accountName: Text(''),
-  //           accountEmail: Text(''),
-  //           currentAccountPicture: CircleAvatar(
-  //             backgroundImage: NetworkImage('https://www.flaticon.com/free-icon/man_2202112?term=avatar&page=1&position=2&origin=tag&related_id=2202112'),
-  //           ),
-  //           decoration: BoxDecoration(color: Color.fromARGB(255, 243, 158, 96)),
-  //         ),
-  //         _buildDrawerItem(
-  //             context, Icons.home, 'Home', const DashboardScreen()),
-  //         _buildDrawerItem(context, Icons.health_and_safety, 'Health programs',
-  //             const HealthProgramsScreen()),
-  //         _buildDrawerItem(context, Icons.calendar_today, 'Appointments',
-  //             const AppointmentsScreen()),
-  //         _buildDrawerItem(
-  //             context, Icons.shopping_cart, 'Shop', const ShopScreen()),
-  //         _buildDrawerItem(context, Icons.article, 'Blogs', const BlogScreen()),
-  //         const Divider(),
-  //         _buildDrawerItem(
-  //             context, Icons.settings, 'Settings', const SettingsScreen()),
-  //         _buildDrawerItem(context, Icons.logout, 'Logout', null),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // Widget _buildDrawerItem(
-  //     BuildContext context, IconData icon, String title, Widget? destination) {
-  //   return ListTile(
-  //     leading: Icon(icon, color: const Color.fromARGB(255, 21, 136, 25)),
-  //     title: Text(title),
-  //     onTap: () {
-  //       if (destination != null) {
-  //         Navigator.push(
-  //           context,
-  //           MaterialPageRoute(builder: (context) => destination),
-  //         );
-  //       }
-  //     },
-  //   );
-  // }
-  
-// class Sidebar extends StatefulWidget {
-//   const Sidebar({super.key});
-
-//   @override
-//   _SidebarState createState() => _SidebarState();
-// }
-
-// class _SidebarState extends State<Sidebar> {
-//   // Default avatar image (set to any of your uploaded images initially)
-//   String selectedAvatar = 'assets/images/profile.png'; // Change this as needed
-
-// // Logout function
-//   Future<void> _logout(BuildContext context) async {
-//     SharedPreferences prefs = await SharedPreferences.getInstance();
-//     await prefs.remove("auth_token"); // Remove token
-//     await prefs.clear(); // Clear all stored data if needed
-
-//     // Navigate to LoginScreen and clear backstack
-//     Navigator.pushAndRemoveUntil(
-//       context,
-//       MaterialPageRoute(builder: (context) => const LoginScreen()),
-//       (route) => false,
-//     );
-//   }
-//   @override
-//   Widget build(BuildContext context) {
-//     return Drawer(
-//       child: ListView(
-//         children: [
-//           UserAccountsDrawerHeader(
-//             accountName: const Text(''),
-//             accountEmail: const Text(''),
-//             currentAccountPicture: GestureDetector(
-//               onTap: () {
-//                 _showAvatarSelectionDialog(context);
-//               },
-//               child: CircleAvatar(
-//                 backgroundColor: Colors.white,
-//                 radius: 70,
-//                 backgroundImage: AssetImage(selectedAvatar),
-//               ),
-//             ),
-//             decoration: const BoxDecoration(
-//               color: Color.fromARGB(255, 243, 158, 96),
-//             ),
-//           ),
-//           _buildDrawerItem(context, Icons.home, 'Home', const DashboardScreen()),
-//           _buildDrawerItem(context, Icons.health_and_safety, 'Health Programs',
-//               const HealthProgramsScreen()),
-//           _buildDrawerItem(context, Icons.calendar_today, 'Appointments',
-//               const AppointmentsScreen()),
-//           _buildDrawerItem(context, Icons.shopping_cart, 'Shop', const ShopScreen()),
-//           _buildDrawerItem(context, Icons.article, 'Blogs', const BlogScreen()),
-//           const Divider(),
-//           _buildDrawerItem(context, Icons.settings, 'Settings', const SettingsScreen()),
-//             ListTile(
-//             leading: const Icon(Icons.logout, color: Colors.red),
-//             title: const Text('Logout', style: TextStyle(color: Colors.red)),
-//             onTap: () {
-//               _logout(context);
-//             },
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   // Helper method for drawer items
-//   Widget _buildDrawerItem(BuildContext context, IconData icon, String title, Widget? screen) {
-//     return ListTile(
-//       leading: Icon(icon),
-//       title: Text(title),
-//       onTap: () {
-//         if (screen != null) {
-//           Navigator.push(
-//             context,
-//             MaterialPageRoute(builder: (context) => screen),
-//           );
-//         }
-//       },
-//     );
-//   }
-// }
-
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
 class Sidebar extends StatefulWidget {
   const Sidebar({super.key});
 
@@ -417,7 +219,6 @@ class _SidebarState extends State<Sidebar> {
   // Default avatar image
   String selectedAvatar = 'assets/images/profile.png';
 
-<<<<<<< HEAD
   // User details
   String? userName;
   String? userId;
@@ -425,18 +226,8 @@ class _SidebarState extends State<Sidebar> {
   @override
   void initState() {
     super.initState();
-    _loadSelectedAvatar();
     _fetchUserDetails();
   }
-
-  
-// Load the selected avatar from SharedPreferences
-Future<void> _loadSelectedAvatar() async {
-  final prefs = await SharedPreferences.getInstance();
-  setState(() {
-    selectedAvatar = prefs.getString('selected_avatar') ?? 'assets/images/profile.png'; // Default avatar
-  });
-}
 
   // Fetch user details
   Future<void> _fetchUserDetails() async {
@@ -449,7 +240,8 @@ Future<void> _loadSelectedAvatar() async {
 
     try {
       final response = await http.get(
-        Uri.parse("$baseUrl/api/user/user/details"), // Replace with your backend URL
+        Uri.parse(
+            "$baseUrl/api/user/user/details"), // Replace with your backend URL
         headers: {
           "Authorization": "Bearer $token",
         },
@@ -469,8 +261,6 @@ Future<void> _loadSelectedAvatar() async {
     }
   }
 
-=======
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
   // Logout function
   Future<void> _logout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -509,20 +299,10 @@ Future<void> _loadSelectedAvatar() async {
   // Helper function to create selectable avatars
   Widget _avatarChoice(String imagePath) {
     return GestureDetector(
-<<<<<<< HEAD
-      onTap: () async {
-        setState(() {
-          selectedAvatar = imagePath;
-        });
-          // Save the selected avatar in SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('selected_avatar', imagePath);
-=======
       onTap: () {
         setState(() {
           selectedAvatar = imagePath;
         });
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
         Navigator.of(context).pop(); // Close dialog
       },
       child: CircleAvatar(
@@ -539,17 +319,12 @@ Future<void> _loadSelectedAvatar() async {
       child: ListView(
         children: [
           UserAccountsDrawerHeader(
-<<<<<<< HEAD
             accountName: userName != null
                 ? Text(userName!, style: const TextStyle(fontSize: 18))
                 : const Text("Loading..."),
             accountEmail: userId != null
                 ? Text("ID: $userId", style: const TextStyle(fontSize: 14))
                 : const Text(""),
-=======
-            accountName: const Text(''),
-            accountEmail: const Text(''),
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
             currentAccountPicture: GestureDetector(
               onTap: () {
                 _showAvatarSelectionDialog(context);
@@ -564,15 +339,18 @@ Future<void> _loadSelectedAvatar() async {
               color: Color.fromARGB(255, 243, 158, 96),
             ),
           ),
-          _buildDrawerItem(context, Icons.home, 'Home', const DashboardScreen()),
           _buildDrawerItem(
-              context, Icons.health_and_safety, 'Health Programs', const HealthProgramsScreen()),
+              context, Icons.home, 'Home', const DashboardScreen()),
+          _buildDrawerItem(context, Icons.health_and_safety, 'Health Programs',
+              const HealthProgramsScreen()),
+          _buildDrawerItem(context, Icons.calendar_today, 'Appointments',
+              const AppointmentsScreen()),
           _buildDrawerItem(
-              context, Icons.calendar_today, 'Appointments', const AppointmentsScreen()),
-          _buildDrawerItem(context, Icons.shopping_cart, 'Shop', const ShopScreen()),
+              context, Icons.shopping_cart, 'Shop', const ShopScreen()),
           _buildDrawerItem(context, Icons.article, 'Blogs', const BlogScreen()),
           const Divider(),
-          _buildDrawerItem(context, Icons.settings, 'Settings', const SettingsScreen()),
+          _buildDrawerItem(
+              context, Icons.settings, 'Settings', const SettingsScreen()),
 
           // Logout Button
           ListTile(
@@ -588,7 +366,8 @@ Future<void> _loadSelectedAvatar() async {
   }
 
   // Function to create drawer items
-  Widget _buildDrawerItem(BuildContext context, IconData icon, String title, Widget destination) {
+  Widget _buildDrawerItem(
+      BuildContext context, IconData icon, String title, Widget destination) {
     return ListTile(
       leading: Icon(icon, color: const Color.fromARGB(255, 21, 136, 25)),
       title: Text(title),
@@ -602,7 +381,6 @@ Future<void> _loadSelectedAvatar() async {
   }
 }
 
-<<<<<<< HEAD
 Widget _buildFeaturesSection(BuildContext context) {
   return Padding(
     padding: const EdgeInsets.all(16.0),
@@ -612,7 +390,7 @@ Widget _buildFeaturesSection(BuildContext context) {
         const Text(
           'Explore Features',
           style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-        ),  
+        ),
         const SizedBox(height: 10),
         GridView.count(
           crossAxisCount: 2,
@@ -639,13 +417,16 @@ Widget _buildFeaturesSection(BuildContext context) {
               Icons.self_improvement,
               color: Colors.teal,
             ),
-            _buildFeatureTile(
-              context,
-              'Consultations',
-              Icons.medical_services,
-              color: Colors.green,
-               destination: const ConsultationScreen(),
-            ),
+            _buildFeatureTile(context, 'Consultations', Icons.medical_services,
+                color: Colors.green, onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ConsultationScreen(
+                  ),
+                ),
+              );
+            }),
           ],
         ),
       ],
@@ -659,19 +440,15 @@ Widget _buildFeatureTile(
   dynamic asset, {
   Color? color,
   String? url,
-  Widget? destination,
+  VoidCallback? onTap,
 }) {
   return GestureDetector(
-    onTap: ()  {
-      if (destination != null) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => destination),
-        );
-      } else if (url != null) {
-        _launchURL(url);
-      }
-    },
+    onTap: onTap ??
+        () {
+          if (url != null) {
+            _launchURL(url);
+          }
+        },
     child: Card(
       elevation: 4,
       child: Column(
@@ -691,136 +468,6 @@ Widget _buildFeatureTile(
     ),
   );
 }
-=======
-
-  Widget _buildHeader(BuildContext context, String? userName) {
-    return Container(
-      padding: const EdgeInsets.all(20.0),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Colors.teal, Colors.lightGreen],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Row(
-        children: [
-          const CircleAvatar(
-            radius: 0,
-            // backgroundImage: NetworkImage('https://therealhealth.org/wp-content/uploads/2024/04/both-removebg-preview.png'),
-          ),
-          const SizedBox(width: 19),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                userName != null ? 'Welcome, $userName!' : 'Welcome Back!', // Display the user's name
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              Text(
-                'Stay healthy with Real Health.',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                  color: Colors.white.withOpacity(0.8),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    ).animate().fadeIn(duration: 500.ms).slideX(begin: -0.5);
-  }
-
-
-  Widget _buildFeaturesSection(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Explore Features',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-          ),  
-          const SizedBox(height: 10),
-          GridView.count(
-            crossAxisCount: 2,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            children: [
-              _buildFeatureTile(
-                context,
-                'PRAKRITI PARIKSHA',
-                'assets/images/icon2.jpeg',
-                url: 'https://therealhealth.org/prakriti-analysis/#single/0',
-              ),
-              _buildFeatureTile(
-                context,
-                'Nutrition Plans',
-                Icons.restaurant,
-                color: Colors.orange,
-              ),
-              _buildFeatureTile(
-                context,
-                'Wellness/Exercise Routines',
-                Icons.self_improvement,
-                color: Colors.teal,
-              ),
-              _buildFeatureTile(
-                context,
-                'Consultations',
-                Icons.medical_services,
-                color: Colors.green,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFeatureTile(
-    BuildContext context,
-    String title,
-    dynamic asset, {
-    Color? color,
-    String? url,
-  }) {
-    return GestureDetector(
-      onTap: () {
-        if (url != null) {
-          _launchURL(url);
-        }
-      },
-      child: Card(
-        elevation: 4,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            asset is IconData
-                ? Icon(asset, size: 40, color: color ?? Colors.black)
-                : Image.asset(asset, height: 40),
-            const SizedBox(height: 10),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
 
 Future<void> _launchURL(String url) async {
   final uri = Uri.parse(url);
@@ -1086,7 +733,7 @@ class PcodScreen extends StatelessWidget {
           SnackBar(content: Text('Error: $e')),
         );
       }
-      Navigator.pop(context); // Go back after launching URL 
+      Navigator.pop(context); // Go back after launching URL
     });
 
     // Show a blank screen or loader briefly
@@ -1269,11 +916,8 @@ Widget _buildBottomNavigationBar(BuildContext context) {
           _buildAnimatedNavItem(Icons.home, 'Home', 0, selectedIndex),
           _buildAnimatedNavItem(
               Icons.star_border_outlined, 'Pro', 1, selectedIndex),
-<<<<<<< HEAD
-          _buildAnimatedNavItem(Icons.explore, 'Explore Recipes', 2, selectedIndex),
-=======
-          _buildAnimatedNavItem(Icons.explore, 'Explore', 2, selectedIndex),
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
+          _buildAnimatedNavItem(
+              Icons.explore, 'Explore Recipes', 2, selectedIndex),
           _buildAnimatedNavItem(Icons.support, 'About Us', 3, selectedIndex),
           // _buildAnimatedNavItem(
           //     Icons.contact_page, 'Contact', 4, selectedIndex),
@@ -1321,7 +965,8 @@ class ChatSupportScreen extends StatelessWidget {
   const ChatSupportScreen({super.key});
 
   Future<void> _launchURL() async {
-    const String phoneNumber = "+919015409707"; // Organization's WhatsApp number
+    const String phoneNumber =
+        "+919015409707"; // Organization's WhatsApp number
     final String message = Uri.encodeComponent("Hello, I need support");
     final String url = "https://wa.me/$phoneNumber?text=$message";
 
@@ -1630,10 +1275,10 @@ class SuccessStoryScreen extends StatelessWidget {
   }
 }
 
-<<<<<<< HEAD
 Future<String?> fetchUserName() async {
   final prefs = await SharedPreferences.getInstance();
-  final token = prefs.getString("auth_token"); // Retrieve the token from SharedPreferences
+  final token = prefs
+      .getString("auth_token"); // Retrieve the token from SharedPreferences
 
   if (token == null) {
     return null; // Return null if no token is found
@@ -1643,7 +1288,8 @@ Future<String?> fetchUserName() async {
     final response = await http.get(
       Uri.parse("$baseUrl/user/details"), // Replace with your backend URL
       headers: {
-        "Authorization": "Bearer $token", // Pass the token in the Authorization header
+        "Authorization":
+            "Bearer $token", // Pass the token in the Authorization header
       },
     );
 
@@ -1659,6 +1305,3 @@ Future<String?> fetchUserName() async {
     return null;
   }
 }
-
-=======
->>>>>>> 6ad1d47e8786c0bad2274c6be52b164ab0035c7c
