@@ -5,13 +5,13 @@ class Recipe {
   final String name;
   final List<String> ingredients;
   final List<String> preparationSteps;
-  final String imageUrl; // New field for image URL
+  final String imageUrl;
 
   Recipe({
     required this.name,
     required this.ingredients,
     required this.preparationSteps,
-    required this.imageUrl, // Initialize imageUrl in constructor
+    required this.imageUrl,
   });
 }
 
@@ -40,7 +40,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
         'Drink before bedtime for relaxation.'
       ],
       imageUrl:
-          'https://eu-images.contentstack.com/v3/assets/bltd5b5e8fe28aae49e/blt491352bb97523d03/6694f54e1a46653875a73a36/Ashwagandha-root-powder-drink_iStock_eskymaks_1333961108.png?width=1280&auto=webp&quality=95&format=jpg&disable=upscale', // Sample image URL
+          'https://eu-images.contentstack.com/v3/assets/bltd5b5e8fe28aae49e/blt491352bb97523d03/6694f54e1a46653875a73a36/Ashwagandha-root-powder-drink_iStock_eskymaks_1333961108.png?width=1280&auto=webp&quality=95&format=jpg&disable=upscale',
     ),
     Recipe(
       name: 'Turmeric Ginger Tea',
@@ -58,7 +58,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
         'Add honey if desired and enjoy!'
       ],
       imageUrl:
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmEBG_vevEy9YDWjwE-83jbHR5JMlCHs3Zeg&s', // Sample image URL
+          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmEBG_vevEy9YDWjwE-83jbHR5JMlCHs3Zeg&s',
     ),
     Recipe(
       name: 'Moringa Soup',
@@ -76,9 +76,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
         'Blend the mixture if you prefer a smoother texture.'
       ],
       imageUrl:
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgZy3qQlJ-61ntpGIDvHjWlYGGXwcq3P7_UQ&s', // Sample image URL
+          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgZy3qQlJ-61ntpGIDvHjWlYGGXwcq3P7_UQ&s',
     ),
-    // Add more recipes as needed...
   ];
 
   List<Recipe> filteredRecipes = [];
@@ -117,55 +116,90 @@ class _ExploreScreenState extends State<ExploreScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Explore '),
+        title: const Text('Explore Recipes'),
         backgroundColor: Colors.teal,
+        elevation: 0,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            const Text(
-              '',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.teal,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 30),
-            // Search Bar
-            TextField(
+      body: Column(
+        children: [
+          // Search Bar
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextField(
               onChanged: _filterRecipes,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: 'Search for Recipes...',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.grey[200],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  borderSide: BorderSide.none,
+                ),
               ),
             ),
-            const SizedBox(height: 20),
-            // List of Recipes with Images
-            Expanded(
-              child: ListView.builder(
-                itemCount: filteredRecipes.length,
-                itemBuilder: (context, index) {
-                  final recipe = filteredRecipes[index];
-                  return ListTile(
-                    leading: Image.network(
-                      recipe.imageUrl, // Display image for each recipe
-                      width: 100,
-                      height: 50,
-                      fit: BoxFit.cover,
+          ),
+          // List of Recipes
+          Expanded(
+            child: ListView.builder(
+              itemCount: filteredRecipes.length,
+              itemBuilder: (context, index) {
+                final recipe = filteredRecipes[index];
+                return GestureDetector(
+                  onTap: () => _navigateToRecipeDetail(recipe),
+                  child: Card(
+                    margin: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
                     ),
-                    title: Text(recipe.name),
-                    trailing: const Icon(Icons.arrow_forward),
-                    onTap: () => _navigateToRecipeDetail(recipe),
-                  );
-                },
-              ),
+                    elevation: 4,
+                    child: Row(
+                      children: [
+                        ClipRRect(
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(15),
+                            bottomLeft: Radius.circular(15),
+                          ),
+                          child: Image.network(
+                            recipe.imageUrl,
+                            width: 100,
+                            height: 100,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                recipe.name,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                '${recipe.ingredients.length} ingredients',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.arrow_forward_ios, size: 16),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -183,41 +217,42 @@ class RecipeDetailScreen extends StatelessWidget {
         title: Text(recipe.name),
         backgroundColor: Colors.teal,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Display the recipe image
-            Center(
+            // Recipe Image
+            ClipRRect(
+              borderRadius: BorderRadius.circular(15),
               child: Image.network(
                 recipe.imageUrl,
-                width: 400,
+                width: double.infinity,
                 height: 200,
                 fit: BoxFit.cover,
               ),
             ),
             const SizedBox(height: 20),
             const Text(
-              'Ingredients:',
+              'Ingredients',
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             for (var ingredient in recipe.ingredients)
               Text(
                 '• $ingredient',
-                style: const TextStyle(fontSize: 18),
+                style: const TextStyle(fontSize: 16),
               ),
             const SizedBox(height: 20),
             const Text(
-              'Preparation Steps:',
+              'Preparation Steps',
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             for (var step in recipe.preparationSteps)
               Text(
                 '• $step',
-                style: const TextStyle(fontSize: 18),
+                style: const TextStyle(fontSize: 16),
               ),
           ],
         ),

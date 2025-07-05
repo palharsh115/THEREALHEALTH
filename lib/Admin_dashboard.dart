@@ -65,7 +65,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   Future<void> fetchUsers() async {
     final response = await http.get(
-      Uri.parse("$baseUrl/admin/users"), // Backend endpoint
+      Uri.parse("$baseUrl/api/admin/users"), // Backend endpoint
       headers: {
         'Authorization': 'Bearer $_token', // Send the token in the Authorization header
       },
@@ -88,17 +88,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   Future<void> fetchAppointments() async {
-    var response = await _fetchData('/admin/appointments');
+    var response = await _fetchData('/api/admin/appointments');
     if (response != null) setState(() => appointments = response);
   }
 
   Future<void> fetchHealthData() async {
-    var response = await _fetchData('/admin/health-data');
+    var response = await _fetchData('/api/admin/health-data');
     if (response != null) setState(() => healthData = response);
   }
 
   Future<void> fetchStats() async {
-    var response = await _fetchData('/admin/stats');
+    var response = await _fetchData('/api/admin/stats');
     if (response != null) {
       setState(() {
         totalUsers = response['totalUsers'] ?? 0;
@@ -109,7 +109,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   Future<void> fetchBlogs() async {
-    var response = await _fetchData('/admin/blogs');
+    var response = await _fetchData('/api/admin/blogs');
     if (response != null) setState(() => blogs = response);
   }
 
@@ -130,7 +130,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   Future<void> createUser(String id, String name, String role) async {
     final response = await http.post(
-      Uri.parse("$baseUrl/admin/users"),
+      Uri.parse("$baseUrl/api/admin/users"),
       headers: {
         'Authorization': 'Bearer $_token',
         'Content-Type': 'application/json',
@@ -157,7 +157,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   Future<void> updateUser(String id, String name, String role) async {
     final response = await http.put(
-      Uri.parse("$baseUrl/admin/users/$id"),
+      Uri.parse("$baseUrl/api/admin/users/$id"),
       headers: {
         'Authorization': 'Bearer $_token',
         'Content-Type': 'application/json',
@@ -184,7 +184,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   Future<void> deleteUser(String id) async {
     final response = await http.delete(
-      Uri.parse("$baseUrl/admin/users/$id"),
+      Uri.parse("$baseUrl/api/admin/users/$id"),
       headers: {
         'Authorization': 'Bearer $_token',
       },
@@ -286,7 +286,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   Future<void> _updateAppointmentStatus(String appointmentId, String status, int index) async {
     final response = await http.put(
-      Uri.parse("$baseUrl/admin/appointments/$appointmentId"),
+      Uri.parse("$baseUrl/api/admin/appointments/$appointmentId"),
       headers: {
         'Authorization': 'Bearer $_token',
         'Content-Type': 'application/json',
@@ -334,42 +334,55 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       return;
     }
 
-    // Prepare the request
-    final request = http.MultipartRequest(
-      'POST',
-      Uri.parse("$baseUrl/admin/blogs"),
-    );
-    request.headers['Authorization'] = 'Bearer $_token';
-    request.fields['title'] = title;
-    request.fields['content'] = content;
-
-    // Add the image file if selected
-    if (_selectedImage != null) {
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          'image', // Backend field name for the image
-          _selectedImage!.path,
-        ),
+    try {
+      // Prepare the request
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse("$baseUrl/api/blogs/admin/blogs"),
       );
+       // Add the Authorization header with the token
+    if (_token != null) {
+      request.headers['Authorization'] = 'Bearer $_token';
     }
 
-    // Send the request
-    final response = await request.send();
+      // Add blog title and content
+      request.fields['title'] = title;
+      request.fields['content'] = content;
 
-    if (response.statusCode == 201) {
-      setState(() {
-        _blogTitleController.clear();
-        _blogContentController.clear();
-        _selectedImage = null;
-      });
-      fetchBlogs(); // Refresh the blog list
+      // Add the image file if selected
+      if (_selectedImage != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'image', // Backend field name for the image
+            _selectedImage!.path,
+          ),
+        );
+      }
+
+      // Send the request
+      final response = await request.send();
+
+      if (response.statusCode == 201) {
+        setState(() {
+          _blogTitleController.clear();
+          _blogContentController.clear();
+          _selectedImage = null;
+        });
+        fetchBlogs(); // Refresh the blog list
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Blog posted successfully!")),
+        );
+      } else {
+        print("❌ Error posting blog: ${response.statusCode}");
+        print("Response body: ${await response.stream.bytesToString()}");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error posting blog: ${response.statusCode}")),
+        );
+      }
+    } catch (e) {
+      print("❌ Exception posting blog: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Blog posted successfully!")),
-      );
-    } else {
-      print("❌ Error posting blog: ${response.statusCode}");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error posting blog: ${response.statusCode}")),
+        const SnackBar(content: Text("An error occurred while posting the blog")),
       );
     }
   }

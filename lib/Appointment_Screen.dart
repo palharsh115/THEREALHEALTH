@@ -1,6 +1,3 @@
-
-
-
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'dart:convert';
@@ -21,32 +18,17 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
   List<String> _timeSlots = [];
   String? _selectedTimeSlot;
   bool _isLoading = false;
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
     _generateTimeSlots();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    )..forward();
-    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
   }
 
   void _generateTimeSlots() {
     _timeSlots = [
       '9:00 AM - 9:30 AM',
-      '10:00 AM - 10:30 AM',
+       '10:00 AM - 10:30 AM',
       '11:00 AM - 11:30 AM',
       '1:00 PM - 1:30 PM',
       '2:00 PM - 2:30 PM',
@@ -77,7 +59,8 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
       return;
     }
 
-    final formattedDate = "${_selectedDate.year}-${_selectedDate.month}-${_selectedDate.day}";
+    final formattedDate =
+        "${_selectedDate.year}-${_selectedDate.month}-${_selectedDate.day}";
 
     setState(() {
       _isLoading = true;
@@ -85,7 +68,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
 
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/book-appointment'),
+        Uri.parse('$baseUrl/api/appointments/book'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -96,16 +79,22 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
         }),
       );
 
+      print("Response status: ${response.statusCode}");
+      print("Response body: ${response.body}");
+
       final data = jsonDecode(response.body);
 
-      if (response.statusCode == 200) {
-        _showConfirmationDialog();
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print("Appointment booked successfully");
+        _showConfirmationDialog(); // Show dialog box
       } else {
+        print("Error booking appointment: ${data['message']}");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Error: ${data['message']}")),
         );
       }
     } catch (e) {
+      print("Network Error: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Network Error: $e")),
       );
@@ -124,27 +113,68 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          title: const Text(
-            'Appointment Confirmed',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.teal,
-            ),
+          title: Row(
+            children: const [
+              Icon(Icons.check_circle, color: Colors.teal, size: 28),
+              SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  'Appointment Confirmed',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.teal,
+                  ),
+                ),
+              ),
+            ],
           ),
-          content: Text(
-            'Your appointment is confirmed for\n\n'
-            'Date: ${_selectedDate.toLocal().toString().split(' ')[0]}\n'
-            'Time: $_selectedTimeSlot',
-            style: const TextStyle(fontSize: 16),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 10),
+                Text(
+                  'Your appointment is confirmed for:',
+                  style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    const Icon(Icons.calendar_today, size: 18, color: Colors.teal),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        'Date: ${_selectedDate.toLocal().toString().split(' ')[0]}',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    const Icon(Icons.access_time, size: 18, color: Colors.teal),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        'Time: $_selectedTimeSlot',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.pop(context); // Close the dialog
               },
               child: const Text(
                 'OK',
-                style: TextStyle(color: Colors.teal),
+                style: TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -156,7 +186,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: const Text(
           'Book Appointment',
@@ -190,7 +220,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
     return Card(
       elevation: 6,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      color: Colors.teal[50],
+      color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: TableCalendar(
@@ -250,6 +280,15 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
                 color: isSelected ? Colors.teal : Colors.grey[300]!,
                 width: 1.5,
               ),
+              boxShadow: isSelected
+                  ? [
+                      BoxShadow(
+                        color: Colors.teal.withOpacity(0.5),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ]
+                  : [],
             ),
             child: Text(
               slot,
@@ -264,9 +303,18 @@ class _AppointmentsScreenState extends State<AppointmentsScreen>
   Widget _buildConfirmButton() {
     return Center(
       child: ElevatedButton(
-        style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+          backgroundColor: Colors.teal,
+        ),
         onPressed: _selectedTimeSlot != null ? _bookAppointment : null,
-        child: _isLoading ? CircularProgressIndicator() : Text("Confirm Appointment"),
+        child: _isLoading
+            ? const CircularProgressIndicator(color: Colors.white)
+            : const Text(
+                "Confirm Appointment",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
       ),
     );
   }

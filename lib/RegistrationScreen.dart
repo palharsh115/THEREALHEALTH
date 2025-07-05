@@ -73,7 +73,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> with SingleTick
     
     try {
       final response = await http.post(
-        Uri.parse("$baseUrl/submit-form"),
+        Uri.parse("$baseUrl/api/user/submit-form"),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token",

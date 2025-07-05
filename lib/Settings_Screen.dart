@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
+import 'package:flutter_application_3/base_url.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_application_3/base_url.dart';
+import 'package:flutter_application_3/login_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -10,7 +15,7 @@ class SettingsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
-        backgroundColor: Colors.black,
+        backgroundColor: const Color.fromARGB(255, 42, 131, 36),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
@@ -25,36 +30,6 @@ class SettingsScreen extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const ProfileInformationScreen()),
-              );
-            },
-          ),
-          const Divider(),
-
-          // Account Settings
-          ListTile(
-            leading: const Icon(Icons.lock, color: Colors.black),
-            title: const Text('Account Settings'),
-            subtitle: const Text('Manage your account security'),
-            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AccountSettingsScreen()),
-              );
-            },
-          ),
-          const Divider(),
-
-          // Health Preferences
-          ListTile(
-            leading: const Icon(Icons.favorite, color: Colors.black),
-            title: const Text('Health Preferences'),
-            subtitle: const Text('Set your health goals and preferences'),
-            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const HealthPreferencesScreen()),
               );
             },
           ),
@@ -89,18 +64,6 @@ class SettingsScreen extends StatelessWidget {
             },
           ),
           const Divider(),
-
-          // Logout
-          ListTile(
-            leading: const Icon(Icons.logout, color: Colors.black),
-            title: const Text('Logout'),
-            onTap: () {
-              // Handle logout logic
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Logged out successfully!")),
-              );
-            },
-          ),
         ],
       ),
     );
@@ -116,28 +79,150 @@ class ProfileInformationScreen extends StatefulWidget {
 }
 
 class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _dobController = TextEditingController();
-  String? _selectedGender;
-  File? _profileImage;
+  final _nameController = TextEditingController();
+  final _ageController = TextEditingController();
+  final _weightController = TextEditingController();
+  final _heightController = TextEditingController();
 
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+  String? _userId; // Add a variable to store the user ID
 
-    if (pickedFile != null) {
-      setState(() {
-        _profileImage = File(pickedFile.path);
-      });
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserDetails();
+      }
+
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+    print("Retrieved Token: $token"); // Debug log
+    return token;
+  }
+
+  Future<void> _loadUserDetails() async {
+    setState(() => _isLoading = true);
+    try {
+      String? token = await _getToken();
+      if (token == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Authentication token not found')),
+        );
+        return;
+      }
+
+      final url = '$baseUrl/api/user/user/details';
+      print("Request URL: $url"); // Debug log
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      print("Response Status Code: ${response.statusCode}");
+      print("Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final user = data['user'];
+
+        // Save user ID and token in SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('user_id', user['_id']); // Save user ID
+        await prefs.setString('auth_token', token); // Save token
+
+        setState(() {
+          _userId = user['_id']; // Save the user ID in the state
+          _nameController.text = user['name'] ?? '';
+          _ageController.text = user['age']?.toString() ?? '';
+          _weightController.text = user['weight']?.toString() ?? '';
+          _heightController.text = user['height']?.toString() ?? '';
+        });
+
+        print("User ID: $_userId"); // Debug log
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('User details loaded')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load user details: ${response.body}')),
+        );
+      }
+    } catch (e) {
+      print('Error fetching user details: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error fetching user details')),
+      );
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
-  void _saveProfile() {
-    // Save profile logic (e.g., API call)
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Profile updated successfully!")),
-    );
+  Future<void> _updateUserDetails() async {
+    setState(() => _isLoading = true);
+    try {
+      String? token = await _getToken();
+      if (token == null || _userId == null) {
+        print("Error: Authentication token or user ID not found."); // Debug log
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Authentication token or user ID not found')),
+        );
+        return;
+      }
+
+      final url = '$baseUrl/api/user/user/update/$_userId'; // Include user ID in the URL
+      final userData = {
+        'name': _nameController.text,
+        'age': int.tryParse(_ageController.text),
+        'weight': double.tryParse(_weightController.text),
+        'height': double.tryParse(_heightController.text),
+      };
+
+      print("Request URL: $url"); // Debug log
+      print("Request Headers: {Authorization: Bearer $token, Content-Type: application/json}"); // Debug log
+      print("Request Body: ${json.encode(userData)}"); // Debug log
+
+      final response = await http.put(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(userData),
+      );
+
+      print("Response Status Code: ${response.statusCode}"); // Debug log
+      print("Response Body: ${response.body}"); // Debug log
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print("User details updated successfully: ${data['message']}"); // Debug log
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(data['message'] ?? 'Profile updated successfully')),
+        );
+      } else {
+        print("Failed to update user details: ${response.body}"); // Debug log
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to update profile')),
+        );
+      }
+    } catch (e) {
+      print('Error updating user details: $e'); // Debug log
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error updating user details')),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _ageController.dispose();
+    _weightController.dispose();
+    _heightController.dispose();
+    super.dispose();
   }
 
   @override
@@ -145,197 +230,205 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile Information'),
-        backgroundColor: Colors.black,
+        backgroundColor: const Color.fromRGBO(81, 132, 53, 1),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            GestureDetector(
-              onTap: _pickImage,
-              child: CircleAvatar(
-                radius: 50,
-                backgroundImage: _profileImage != null ? FileImage(_profileImage!) : null,
-                child: _profileImage == null
-                    ? const Icon(Icons.camera_alt, size: 50, color: Colors.black54)
-                    : null,
-              ),
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ListView(
+              children: [
+                TextField(
+                  controller: _nameController,
+                  decoration: const InputDecoration(labelText: 'Full Name', border: OutlineInputBorder()),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _ageController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'Age', border: OutlineInputBorder()),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _weightController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'Weight (kg)', border: OutlineInputBorder()),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _heightController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'Height (cm)', border: OutlineInputBorder()),
+                ),
+                const SizedBox(height: 32),
+                ElevatedButton(
+                  onPressed: _updateUserDetails,
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
+                  child: const Text('Save', style: TextStyle(color: Colors.white)),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _loadUserDetails,
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+                  child: const Text('Reload', style: TextStyle(color: Colors.white)),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Full Name',
-                border: OutlineInputBorder(),
-              ),
+          ),
+          if (_isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.5),
+              child: const Center(child: CircularProgressIndicator()),
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email / Phone',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _dobController,
-              decoration: const InputDecoration(
-                labelText: 'Date of Birth',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              value: _selectedGender,
-              items: ['Male', 'Female', 'Other']
-                  .map((gender) => DropdownMenuItem(value: gender, child: Text(gender)))
-                  .toList(),
-              onChanged: (value) {
-                setState(() {
-                  _selectedGender = value;
-                });
-              },
-              decoration: const InputDecoration(
-                labelText: 'Gender',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: _saveProfile,
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
-              child: const Text('Save', style: TextStyle(color: Colors.white)),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// Account Settings Screen
-class AccountSettingsScreen extends StatelessWidget {
-  const AccountSettingsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Account Settings'),
-        backgroundColor: Colors.black,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            ListTile(
-              title: const Text('Change Password'),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () {
-                // Navigate to Change Password Screen
-              },
-            ),
-            const Divider(),
-            SwitchListTile(
-              title: const Text('Two-Factor Authentication'),
-              value: true,
-              onChanged: (value) {
-                // Handle Two-Factor Authentication toggle
-              },
-            ),
-            const Divider(),
-            ListTile(
-              title: const Text('Connected Devices'),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () {
-                // Navigate to Connected Devices Screen
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// Health Preferences Screen
-class HealthPreferencesScreen extends StatelessWidget {
-  const HealthPreferencesScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Health Preferences'),
-        backgroundColor: Colors.black,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            ListTile(
-              title: const Text('Health Goals'),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () {
-                // Navigate to Health Goals Screen
-              },
-            ),
-            const Divider(),
-            ListTile(
-              title: const Text('Preferred Doctor / Clinic'),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () {
-                // Navigate to Preferred Doctor Screen
-              },
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }
 }
 
 // Privacy & Security Screen
-class PrivacySecurityScreen extends StatelessWidget {
+class PrivacySecurityScreen extends StatefulWidget {
   const PrivacySecurityScreen({super.key});
+
+  @override
+  _PrivacySecurityScreenState createState() => _PrivacySecurityScreenState();
+}
+
+class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
+  bool _isLoading = false;
+
+  Future<void> _manageDataSharing(BuildContext context) async {
+    // Example: Toggle data sharing preference
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      bool isDataSharingEnabled = prefs.getBool('data_sharing') ?? true;
+
+      // Toggle the preference
+      isDataSharingEnabled = !isDataSharingEnabled;
+      await prefs.setBool('data_sharing', isDataSharingEnabled);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            isDataSharingEnabled
+                ? 'Data sharing enabled'
+                : 'Data sharing disabled',
+          ),
+        ),
+      );
+    } catch (e) {
+      print('Error managing data sharing: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to update data sharing preference')),
+      );
+    }
+  }
+
+  Future<void> _deleteAccount(BuildContext context) async {
+    setState(() => _isLoading = true); // Optional: Show a loading indicator
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+      final userId = prefs.getString('user_id'); // Retrieve the user ID from SharedPreferences
+
+      if (token == null || userId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Authentication token or user ID not found')),
+        );
+        return;
+      }
+
+      final url = '$baseUrl/api/user/user/delete/$userId'; // Use the user ID in the URL
+      print("Request URL: $url"); // Debug log
+
+      final response = await http.delete(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print("Response Status Code: ${response.statusCode}");
+      print("Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Account deleted successfully')),
+        );
+
+        // Clear user data
+        await prefs.clear();
+
+        // Redirect to login screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+      } else {
+        print("❌ Error deleting account: ${response.body}");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error deleting account: ${response.statusCode}")),
+        );
+      }
+    } catch (e) {
+      print('Error deleting account: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error deleting account')),
+      );
+    } finally {
+      setState(() => _isLoading = false); // Optional: Hide the loading indicator
+    }
+  }
+
+  void _viewTermsAndPrivacyPolicy(BuildContext context) {
+    // Example: Navigate to a Terms and Privacy Policy screen
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const TermsAndPrivacyPolicyScreen(),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Privacy & Security'),
-        backgroundColor: Colors.black,
+        backgroundColor: const Color.fromARGB(255, 49, 125, 50),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            ListTile(
-              title: const Text('Manage Data Sharing'),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () {
-                // Navigate to Data Sharing Screen
-              },
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ListView(
+              children: [
+                ListTile(
+                  title: const Text('Manage Data Sharing'),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () => _manageDataSharing(context),
+                ),
+                const Divider(),
+                ListTile(
+                  title: const Text('Delete My Account'),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () => _deleteAccount(context),
+                ),
+                const Divider(),
+                ListTile(
+                  title: const Text('Terms and Privacy Policy'),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () => _viewTermsAndPrivacyPolicy(context),
+                ),
+              ],
             ),
-            const Divider(),
-            ListTile(
-              title: const Text('Delete My Account'),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () {
-                // Navigate to Delete Account Screen
-              },
+          ),
+          if (_isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.5),
+              child: const Center(child: CircularProgressIndicator()),
             ),
-            const Divider(),
-            ListTile(
-              title: const Text('Terms and Privacy Policy'),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () {
-                // Navigate to Terms and Privacy Policy Screen
-              },
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }
@@ -350,7 +443,7 @@ class AppSettingsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('App Settings'),
-        backgroundColor: Colors.black,
+        backgroundColor: const Color.fromRGBO(61, 128, 48, 1),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -364,17 +457,200 @@ class AppSettingsScreen extends StatelessWidget {
               },
             ),
             const Divider(),
-            ListTile(
-              title: const Text('Language Selection'),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () {
-                // Navigate to Language Selection Screen
-              },
+            const ListTile(
+              title: Text('App Version'),
+              subtitle: Text('1.0.0'),
             ),
-            const Divider(),
-            ListTile(
-              title: const Text('App Version'),
-              subtitle: const Text('1.0.0'),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class TermsAndPrivacyPolicyScreen extends StatelessWidget {
+  const TermsAndPrivacyPolicyScreen({super.key});
+  
+ Future<void> _launchURL(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      throw 'Could not launch $url';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Terms and Privacy Policy'),
+        backgroundColor: const Color.fromARGB(255, 55, 155, 73),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListView(
+          children: [
+            // Header Section
+            Container(
+              padding: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 240, 240, 240),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Terms and Privacy Policy',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Last updated: May 12, 2025',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Terms Section
+            Container(
+              padding: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Terms of Service',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    '1. By using this app, you agree to our terms of service.\n'
+                    '2. You are responsible for maintaining the confidentiality of your account.\n'
+                    '3. Misuse of the app may result in account suspension or termination.',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Privacy Section
+            Container(
+              padding: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Privacy Policy',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    '1. Your data will be handled securely and responsibly.\n'
+                    '2. We do not share your personal information without your consent.\n'
+                    '3. You can delete your account at any time.\n'
+                    '4. For more details, contact info@therealhealth.org',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Contact Section
+            Container(
+              padding: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 240, 240, 240),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Contact Us',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'If you have any questions or concerns, feel free to reach out to us at:',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Email: info@therealhealth.org',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  GestureDetector(
+                    onTap: () => _launchURL('https://therealhealth.org/'),
+                    child: const Text(
+                      'Visit our website: www.therealhealth.org',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

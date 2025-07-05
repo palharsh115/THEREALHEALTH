@@ -1,4 +1,6 @@
+import 'dart:convert'; // For JSON decoding
 import 'package:flutter_application_3/base_url.dart';
+import 'package:http/http.dart' as http; // For HTTP requests
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_3/Appointment_Screen.dart';
@@ -6,15 +8,16 @@ import 'package:flutter_application_3/Blog%20_Screen.dart';
 import 'package:flutter_application_3/Settings_Screen.dart';
 import 'package:flutter_application_3/Shop_screen.dart';
 import 'package:flutter_application_3/aboutUs.dart';
+// ignore: unused_import
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_application_3/Prosection_screen.dart';
 import 'Explore_screen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'login_screen.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:flutter_application_3/base_url.dart';
+import 'package:flutter_application_3/Consultation_screen.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -38,52 +41,53 @@ class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
+  _DashboardScreenState createState() => _DashboardScreenState();
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  String? userName; // State variable to store the user's name
+  String? userName;
 
   @override
-  void initState() {
+ void initState() {
     super.initState();
-    _fetchUserName(); // Fetch the user's name when the screen loads
+    _fetchUserDetails();
   }
 
-  Future<void> _fetchUserName() async {
+  
+  // Fetch user details
+  Future<void> _fetchUserDetails() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString("auth_token");
+
+    if (token == null) {
+      print("No auth token found");
+      return;
+    }
+
     try {
-      // Use the reusable _fetchData function to fetch user data
-      final response = await _fetchData('$baseUrl/users/profile');
-      if (response != null) {
-        setState(() {
-          userName = response['name']; // Update the user's name
-        });
-        print("✅ User data fetched successfully: $response");
-      } else {
-        print("❌ Failed to fetch user data.");
-      }
-    } catch (e) {
-      print("Error: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
+      final response = await http.get(
+        Uri.parse("$baseUrl/api/user/user/details"), // Replace with your backend URL
+        headers: {
+          "Authorization": "Bearer $token",
+        },
       );
+
+      print("API Response: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          userName = data["user"]["name"];
+        });
+        print("User name fetched: $userName");
+      } else {
+        print("Failed to fetch user details: ${response.body}");
+      }
+    } catch (e) {
+      print("Error fetching user details: $e");
     }
   }
 
-  Future<Map<String, dynamic>?> _fetchData(String url) async {
-    try {
-      final response = await http.get(Uri.parse(url));
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body) as Map<String, dynamic>;
-      } else {
-        print("Failed to fetch data. Status code: ${response.statusCode}");
-        return null;
-      }
-    } catch (e) {
-      print("Error fetching data: $e");
-      return null;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,32 +96,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
         title: const Text('The Real Health'),
         centerTitle: true,
         backgroundColor: const Color.fromARGB(255, 145, 221, 207),
-        titleTextStyle: const TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: Color(0xFF3A3B3C),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications,
-                color: Color.fromARGB(255, 58, 60, 58)),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const NotificationsScreen()),
-              );
-            },
-          ),
-        ],
-        iconTheme: const IconThemeData(color: Color(0xFF3A3B3C)),
       ),
-      drawer: const Sidebar(),
+      drawer: const Sidebar(), // Add the Sidebar here
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(context, userName), // Pass the userName to the header
+            _buildHeader(context, userName),
             const SizedBox(height: 4),
             _buildAdSlider(),
             const SizedBox(height: 10),
@@ -129,18 +114,48 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const ChatSupportScreen()),
-          );
-        },
-        label: const Text('Support'),
-        icon: const Icon(Icons.chat),
-        backgroundColor: const Color.fromARGB(255, 229, 232, 229),
+      bottomNavigationBar: _buildBottomNavigationBar(context), // Add this line
+    );
+  }
+
+  Widget _buildHeader(BuildContext context, String? userName) {
+    return Container(
+      padding: const EdgeInsets.all(20.0),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Colors.teal, Colors.lightGreen],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(18),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(context),
+      child: Row(
+        children: [
+          const CircleAvatar(radius: 0),
+          const SizedBox(width: 19),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                userName != null ? 'Welcome  $userName!' : 'Welcome back!',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              Text(
+                'Stay healthy with Real Health.',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.white.withOpacity(0.8),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -149,7 +164,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     List<String> adImages = [
       'https://etimg.etb2bimg.com/thumb/msid-105205469,imgsize-15434,width-1200,height=765,overlay-ethealth/industry/early-detection-of-pre-diabetes-to-prevent-diabetes-need-of-the-hour.jpg',
       'https://bpincontrol.in/wp-content/uploads/2023/08/Heart-Disease.jpg',
-      'https://therealhealth.org/wp-content/uploads/2024/04/child-diet-200x200.png'
+      'https://therealhealth.org/wp/content/uploads/2024/04/child-diet-200x200.png'
     ];
 
     return Padding(
@@ -204,6 +219,57 @@ class _SidebarState extends State<Sidebar> {
   // Default avatar image
   String selectedAvatar = 'assets/images/profile.png';
 
+  // User details
+  String? userName;
+  String? userId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSelectedAvatar();
+    _fetchUserDetails();
+  }
+
+  
+// Load the selected avatar from SharedPreferences
+Future<void> _loadSelectedAvatar() async {
+  final prefs = await SharedPreferences.getInstance();
+  setState(() {
+    selectedAvatar = prefs.getString('selected_avatar') ?? 'assets/images/profile.png'; // Default avatar
+  });
+}
+
+  // Fetch user details
+  Future<void> _fetchUserDetails() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString("auth_token");
+
+    if (token == null) {
+      return;
+    }
+
+    try {
+      final response = await http.get(
+        Uri.parse("$baseUrl/api/user/user/details"), // Replace with your backend URL
+        headers: {
+          "Authorization": "Bearer $token",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          userName = data["user"]["name"];
+          userId = data["user"]["_id"];
+        });
+      } else {
+        print("Failed to fetch user details: ${response.body}");
+      }
+    } catch (e) {
+      print("Error fetching user details: $e");
+    }
+  }
+
   // Logout function
   Future<void> _logout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -242,10 +308,13 @@ class _SidebarState extends State<Sidebar> {
   // Helper function to create selectable avatars
   Widget _avatarChoice(String imagePath) {
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
         setState(() {
           selectedAvatar = imagePath;
         });
+          // Save the selected avatar in SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('selected_avatar', imagePath);
         Navigator.of(context).pop(); // Close dialog
       },
       child: CircleAvatar(
@@ -262,8 +331,12 @@ class _SidebarState extends State<Sidebar> {
       child: ListView(
         children: [
           UserAccountsDrawerHeader(
-            accountName: const Text(''),
-            accountEmail: const Text(''),
+            accountName: userName != null
+                ? Text(userName!, style: const TextStyle(fontSize: 18))
+                : const Text("Loading..."),
+            accountEmail: userId != null
+                ? Text("ID: $userId", style: const TextStyle(fontSize: 14))
+                : const Text(""),
             currentAccountPicture: GestureDetector(
               onTap: () {
                 _showAvatarSelectionDialog(context);
@@ -316,134 +389,94 @@ class _SidebarState extends State<Sidebar> {
   }
 }
 
-
-  Widget _buildHeader(BuildContext context, String? userName) {
-    return Container(
-      padding: const EdgeInsets.all(20.0),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Colors.teal, Colors.lightGreen],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Row(
-        children: [
-          const CircleAvatar(
-            radius: 0,
-            // backgroundImage: NetworkImage('https://therealhealth.org/wp-content/uploads/2024/04/both-removebg-preview.png'),
-          ),
-          const SizedBox(width: 19),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                userName != null ? 'Welcome, $userName!' : 'Welcome Back!', // Display the user's name
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              Text(
-                'Stay healthy with Real Health.',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                  color: Colors.white.withOpacity(0.8),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    ).animate().fadeIn(duration: 500.ms).slideX(begin: -0.5);
-  }
-
-
-  Widget _buildFeaturesSection(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Explore Features',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-          ),  
-          const SizedBox(height: 10),
-          GridView.count(
-            crossAxisCount: 2,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            children: [
-              _buildFeatureTile(
-                context,
-                'PRAKRITI PARIKSHA',
-                'assets/images/icon2.jpeg',
-                url: 'https://therealhealth.org/prakriti-analysis/#single/0',
-              ),
-              _buildFeatureTile(
-                context,
-                'Nutrition Plans',
-                Icons.restaurant,
-                color: Colors.orange,
-              ),
-              _buildFeatureTile(
-                context,
-                'Wellness/Exercise Routines',
-                Icons.self_improvement,
-                color: Colors.teal,
-              ),
-              _buildFeatureTile(
-                context,
-                'Consultations',
-                Icons.medical_services,
-                color: Colors.green,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFeatureTile(
-    BuildContext context,
-    String title,
-    dynamic asset, {
-    Color? color,
-    String? url,
-  }) {
-    return GestureDetector(
-      onTap: () {
-        if (url != null) {
-          _launchURL(url);
-        }
-      },
-      child: Card(
-        elevation: 4,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+Widget _buildFeaturesSection(BuildContext context) {
+  return Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Explore Features',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        ),  
+        const SizedBox(height: 10),
+        GridView.count(
+          crossAxisCount: 2,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
           children: [
-            asset is IconData
-                ? Icon(asset, size: 40, color: color ?? Colors.black)
-                : Image.asset(asset, height: 40),
-            const SizedBox(height: 10),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+            _buildFeatureTile(
+              context,
+              'PRAKRITI PARIKSHA',
+              'assets/images/icon2.jpeg',
+              url: 'https://therealhealth.org/prakriti-analysis/#single/0',
+            ),
+            _buildFeatureTile(
+              context,
+              'Nutrition Plans',
+              Icons.restaurant,
+              color: Colors.orange,
+            ),
+            _buildFeatureTile(
+              context,
+              'Wellness/Exercise Routines',
+              Icons.self_improvement,
+              color: Colors.teal,
+            ),
+            _buildFeatureTile(
+              context,
+              'Consultations',
+              Icons.medical_services,
+              color: Colors.green,
+               destination: const ConsultationScreen(),
             ),
           ],
         ),
-      ),
-    );
-  }
+      ],
+    ),
+  );
+}
 
+Widget _buildFeatureTile(
+  BuildContext context,
+  String title,
+  dynamic asset, {
+  Color? color,
+  String? url,
+  Widget? destination,
+}) {
+  return GestureDetector(
+    onTap: ()  {
+      if (destination != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => destination),
+        );
+      } else if (url != null) {
+        _launchURL(url);
+      }
+    },
+    child: Card(
+      elevation: 4,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          asset is IconData
+              ? Icon(asset, size: 40, color: color ?? Colors.black)
+              : Image.asset(asset, height: 40),
+          const SizedBox(height: 10),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    ),
+  );
+}
 
 Future<void> _launchURL(String url) async {
   final uri = Uri.parse(url);
@@ -892,7 +925,7 @@ Widget _buildBottomNavigationBar(BuildContext context) {
           _buildAnimatedNavItem(Icons.home, 'Home', 0, selectedIndex),
           _buildAnimatedNavItem(
               Icons.star_border_outlined, 'Pro', 1, selectedIndex),
-          _buildAnimatedNavItem(Icons.explore, 'Explore', 2, selectedIndex),
+          _buildAnimatedNavItem(Icons.explore, 'Explore Recipes', 2, selectedIndex),
           _buildAnimatedNavItem(Icons.support, 'About Us', 3, selectedIndex),
           // _buildAnimatedNavItem(
           //     Icons.contact_page, 'Contact', 4, selectedIndex),
@@ -1246,6 +1279,35 @@ class SuccessStoryScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Success Story')),
       body: const Center(child: Text('Detailed Success Story')),
     );
+  }
+}
+
+Future<String?> fetchUserName() async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString("auth_token"); // Retrieve the token from SharedPreferences
+
+  if (token == null) {
+    return null; // Return null if no token is found
+  }
+
+  try {
+    final response = await http.get(
+      Uri.parse("$baseUrl/user/details"), // Replace with your backend URL
+      headers: {
+        "Authorization": "Bearer $token", // Pass the token in the Authorization header
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data["user"]["name"]; // Extract the user's name from the response
+    } else {
+      print("Failed to fetch user details: ${response.body}");
+      return null;
+    }
+  } catch (e) {
+    print("Error fetching user details: $e");
+    return null;
   }
 }
 

@@ -204,7 +204,7 @@ class _ThyroidQuestionnaireScreenState extends State<ThyroidQuestionnaireScreen>
 
   final Map<int, bool?> _answers = {};
   bool _isLoading = false;
-  static final String _apiUrl = "$baseUrl/submit-health-data";
+  static final String _apiUrl = "$baseUrl/api/user/submit-health-data";
 
   Future<String?> _getUserToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
