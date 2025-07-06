@@ -1,0 +1,2 @@
+C:/Users/cyber/Downloads/TRH-1.0/THEREALHEALTH/android/app/.cxx/RelWithDebInfo/6h1d326j/x86/CMakeFiles/edit_cache.dir
+C:/Users/cyber/Downloads/TRH-1.0/THEREALHEALTH/android/app/.cxx/RelWithDebInfo/6h1d326j/x86/CMakeFiles/rebuild_cache.dir
