@@ -95,18 +95,22 @@ class _ConsultationScreenState extends State<ConsultationScreen> {
                             // Show user name and phone number
                             Text(
                               "User: ${consultation['userName'] ?? 'Unknown'} (${consultation['userPhone'] ?? ''})",
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               "Date: ${DateTime.parse(consultation['date']).toLocal()}",
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 8),
                             Text("Notes: ${consultation['notes']}"),
                             const SizedBox(height: 8),
-                            const Text("Prescription:", style: TextStyle(fontWeight: FontWeight.bold)),
-                            ...List<Widget>.from(consultation['prescription'].map((prescription) {
+                            const Text("Prescription:",
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            ...List<Widget>.from(consultation['prescription']
+                                .map((prescription) {
                               return Text(
                                 "- ${prescription['medicineName']} (${prescription['dosage']} for ${prescription['duration']})",
                               );

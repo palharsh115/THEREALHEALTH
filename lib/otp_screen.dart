@@ -7,6 +7,7 @@ import 'package:flutter_application_3/RegistrationScreen.dart';
 import 'dashboard_screen.dart';
 import 'Admin_dashboard.dart';
 import 'package:flutter_application_3/base_url.dart';
+import 'package:flutter/services.dart';
 
 class OtpScreen extends StatefulWidget {
   final String phoneNumber;
@@ -17,8 +18,10 @@ class OtpScreen extends StatefulWidget {
   State<OtpScreen> createState() => _OtpScreenState();
 }
 
-class _OtpScreenState extends State<OtpScreen> with SingleTickerProviderStateMixin {
-  final List<TextEditingController> _otpControllers = List.generate(6, (_) => TextEditingController());
+class _OtpScreenState extends State<OtpScreen>
+    with SingleTickerProviderStateMixin {
+  final List<TextEditingController> _otpControllers =
+      List.generate(6, (_) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
   late final AnimationController _controller;
   late final Animation<Offset> _slideAnimation;
@@ -34,7 +37,8 @@ class _OtpScreenState extends State<OtpScreen> with SingleTickerProviderStateMix
       vsync: this,
     );
 
-    _slideAnimation = Tween<Offset>(begin: const Offset(0, -1), end: Offset.zero).animate(
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, -1), end: Offset.zero).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
 
@@ -172,13 +176,8 @@ class _OtpScreenState extends State<OtpScreen> with SingleTickerProviderStateMix
   }
 
   void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-  }
-
-  void _moveToNextField(int index) {
-    if (index < 5 && _otpControllers[index].text.isNotEmpty) {
-      FocusScope.of(context).requestFocus(_focusNodes[index + 1]);
-    }
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -198,7 +197,8 @@ class _OtpScreenState extends State<OtpScreen> with SingleTickerProviderStateMix
               children: [
                 Text(
                   'OTP has been sent to ${widget.phoneNumber}',
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 30),
@@ -214,15 +214,40 @@ class _OtpScreenState extends State<OtpScreen> with SingleTickerProviderStateMix
                         border: Border.all(color: Colors.teal, width: 2),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: TextField(
-                        controller: _otpControllers[index],
-                        focusNode: _focusNodes[index],
-                        keyboardType: TextInputType.number,
-                        textAlign: TextAlign.center,
-                        maxLength: 1,
-                        decoration: const InputDecoration(counterText: '', border: InputBorder.none),
-                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                        onChanged: (value) => _moveToNextField(index),
+                      child: Focus(
+                        onKey: (node, event) {
+                          if (event
+                                  .isKeyPressed(LogicalKeyboardKey.backspace) &&
+                              _otpControllers[index].text.isEmpty &&
+                              index > 0) {
+                            FocusScope.of(context)
+                                .requestFocus(_focusNodes[index - 1]);
+                            _otpControllers[index - 1].clear();
+                            return KeyEventResult.handled;
+                          }
+                          return KeyEventResult.ignored;
+                        },
+                        child: TextField(
+                          controller: _otpControllers[index],
+                          focusNode: _focusNodes[index],
+                          keyboardType: TextInputType.number,
+                          textAlign: TextAlign.center,
+                          maxLength: 1,
+                          decoration: const InputDecoration(
+                              counterText: '', border: InputBorder.none),
+                          style: const TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold),
+                          onChanged: (value) {
+                            if (value.isNotEmpty && index < 5) {
+                              FocusScope.of(context)
+                                  .requestFocus(_focusNodes[index + 1]);
+                            }
+                            if (value.isEmpty && index > 0) {
+                              FocusScope.of(context)
+                                  .requestFocus(_focusNodes[index - 1]);
+                            }
+                          },
+                        ),
                       ),
                     );
                   }),
@@ -232,16 +257,20 @@ class _OtpScreenState extends State<OtpScreen> with SingleTickerProviderStateMix
                   onPressed: _isLoading ? null : _verifyOTP,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.teal,
-                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 50, vertical: 15),
                   ),
                   child: _isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text('Verify', style: TextStyle(fontSize: 22, color: Colors.white)),
+                      : const Text('Verify',
+                          style: TextStyle(fontSize: 22, color: Colors.white)),
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _remainingTime == 0 ? _resendOTP : null,
-                  child: Text(_remainingTime == 0 ? 'Resend OTP' : 'Resend in $_remainingTime s'),
+                  child: Text(_remainingTime == 0
+                      ? 'Resend OTP'
+                      : 'Resend in $_remainingTime s'),
                 ),
               ],
             ),

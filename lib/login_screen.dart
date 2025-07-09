@@ -16,7 +16,8 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin {
+class _LoginScreenState extends State<LoginScreen>
+    with TickerProviderStateMixin {
   bool _isButtonPressed = false;
   final TextEditingController _phoneController = TextEditingController();
 
@@ -119,7 +120,8 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
 
   Future<void> savePhoneNumber(String phoneNumber) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('userid', phoneNumber); // Save phone number as user ID
+    await prefs.setString(
+        'userid', phoneNumber); // Save phone number as user ID
     print("Phone number saved: $phoneNumber");
   }
 
@@ -151,7 +153,6 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
       body: Stack(
         children: [
           Container(color: const Color(0xFF025464)),
-
           Positioned.fill(
             child: AnimatedBuilder(
               animation: _floatingController,
@@ -162,9 +163,9 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
               },
             ),
           ),
-
           Positioned(
-            top: screenHeight * 0.10 + (_isFloatingAnimationActive ? _floatingAnimation.value : 0),
+            top: screenHeight * 0.10 +
+                (_isFloatingAnimationActive ? _floatingAnimation.value : 0),
             left: 0,
             right: 0,
             child: GestureDetector(
@@ -201,7 +202,6 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
               ),
             ),
           ),
-
           Positioned(
             top: screenHeight * 0.5,
             left: 0,
@@ -223,12 +223,12 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                 Text(
                   "Your journey to real health begins here",
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 17, color: Color.fromARGB(255, 251, 251, 250)),
+                  style: TextStyle(
+                      fontSize: 17, color: Color.fromARGB(255, 251, 251, 250)),
                 ),
               ],
             ),
           ),
-
           Positioned(
             bottom: screenHeight * 0.1,
             left: 30,
@@ -247,6 +247,20 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
                     ),
+                    floatingLabelBehavior:
+                        FloatingLabelBehavior.never, // Always show label
+                    floatingLabelStyle: const TextStyle(
+                      color: Colors.teal, // Change color from blue to teal
+                      fontSize: 18, // Make floating label larger (move it down)
+                      fontWeight: FontWeight.bold,
+                    ),
+                    labelStyle: const TextStyle(
+                      color: Colors.teal, // Label color when not floating
+                      fontSize: 18,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                        vertical: 20,
+                        horizontal: 16), // Increase vertical padding
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -262,7 +276,9 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                     ),
                     child: Center(
                       child: Text(
-                        _isButtonPressed ? "Please Wait..." : "Agree & Continue",
+                        _isButtonPressed
+                            ? "Please Wait..."
+                            : "Agree & Continue",
                         style: const TextStyle(
                           fontSize: 18,
                           color: Colors.white,
@@ -297,7 +313,9 @@ class WavePainter extends CustomPainter {
     const waveLength = 200.0;
 
     for (double i = 0; i <= size.width; i++) {
-      final y = size.height - 60 + sin((i / waveLength * 2 * pi) + (progress * 2 * pi)) * waveHeight;
+      final y = size.height -
+          60 +
+          sin((i / waveLength * 2 * pi) + (progress * 2 * pi)) * waveHeight;
       path.lineTo(i, y);
     }
     path.lineTo(size.width, size.height);
@@ -310,4 +328,3 @@ class WavePainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
-

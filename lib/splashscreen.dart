@@ -1,10 +1,9 @@
-
-
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dashboard_screen.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -73,9 +72,9 @@ class _SplashScreenState extends State<SplashScreen>
       curve: Curves.easeInOut,
     ));
 
-     checkUserAuth();
+    checkUserAuth();
   }
-  
+
   Future<void> checkUserAuth() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("auth_token");
@@ -87,7 +86,9 @@ class _SplashScreenState extends State<SplashScreen>
       // If token exists, navigate to Dashboard
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const DashboardScreen()), // Change to your actual screen
+        MaterialPageRoute(
+            builder: (context) =>
+                const DashboardScreen()), // Change to your actual screen
       );
     } else {
       // If no token, navigate to Login Screen
@@ -132,9 +133,9 @@ class _SplashScreenState extends State<SplashScreen>
                       child: ScaleTransition(
                         scale: _scaleAnimation,
                         child: Image.asset(
-                          'assets/images/test.jpg', // Replace with your image path
-                          width: 220,
-                          height: 270,
+                          'assets/images/test.jpg',
+                          width: 190.w, // Responsive width
+                          height: 240.h, // Responsive height
                         ),
                       ),
                     ),
@@ -144,13 +145,13 @@ class _SplashScreenState extends State<SplashScreen>
                     opacity: _fadeTextAnimation,
                     child: SlideTransition(
                       position: _slideTextAnimation,
-                      child: const Align(
+                      child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
                           "THE REAL\nHEALTH",
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 35.6,
+                            fontSize: 33.sp, // Responsive font size
                             fontWeight: FontWeight.bold,
                             color: Colors.white70,
                             fontFamily: 'Shrikhand',
@@ -161,16 +162,16 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                   // Additional Text or Logo
                   Positioned(
-                    bottom: 50,
+                    bottom: 50.h, // Responsive bottom padding
                     left: 0,
                     right: 0,
                     child: FadeTransition(
                       opacity: _fadeTextAnimation,
-                      child: const Center(
+                      child: Center(
                         child: Text(
                           "Your Health, Our Priority",
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 18.sp, // Responsive font size
                             fontWeight: FontWeight.w500,
                             color: Colors.black54,
                           ),
