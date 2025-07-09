@@ -422,8 +422,7 @@ Widget _buildFeaturesSection(BuildContext context) {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const ConsultationScreen(
-                  ),
+                  builder: (context) => const ConsultationScreen(),
                 ),
               );
             }),
@@ -518,38 +517,32 @@ Widget _buildExpertiseSection(BuildContext context) {
   final List<Map<String, dynamic>> expertiseItems = [
     {
       'title': 'Diabetes & Pre Diabetes',
-      'imageUrl':
-          'https://etimg.etb2bimg.com/thumb/msid-105205469,imgsize-15434,width-1200,height=765,overlay-ethealth/industry/early-detection-of-pre-diabetes-to-prevent-diabetes-need-of-the-hour.jpg',
+      'imagePath': 'assets/images/diabetes.jpg',
       'screen': const DiabetesScreen(),
     },
     {
       'title': 'Heart Disease',
-      'imageUrl':
-          'https://bpincontrol.in/wp-content/uploads/2023/08/Heart-Disease.jpg',
+      'imagePath': 'assets/images/heart.jpg',
       'screen': const HeartDiseaseScreen(),
     },
     {
       'title': 'Weight Management',
-      'imageUrl':
-          'https://www.health.com/thmb/z8T-vu1AVZ9flwXK9P15kcRmr6c=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Health-GettyImages-FoodsForWeightLoss-35e70ba668eb4d9783e89e93cabf55a9.jpg',
+      'imagePath': 'assets/images/weight.jpg',
       'screen': const WeightManagementScreen(),
     },
     {
       'title': 'PCOD and Gynae Problems',
-      'imageUrl':
-          'https://therealhealth.org/wp-content/uploads/2024/04/pcod-p-200x200.png',
+      'imagePath': 'assets/images/pcod.jpg',
       'screen': const PcodScreen(),
     },
     {
       'title': 'Kids Immunity & Nutrition',
-      'imageUrl':
-          'https://therealhealth.org/wp-content/uploads/2024/04/child-diet-200x200.png',
+      'imagePath': 'assets/images/kids.jpg',
       'screen': const KidsNutritionScreen(),
     },
     {
       'title': 'Nutrition for Cancer Patient',
-      'imageUrl':
-          'https://therealhealth.org/wp-content/uploads/2024/04/can-diet-200x200.png',
+      'imagePath': 'assets/images/cancer.jpg',
       'screen': const CancerNutritionScreen(),
     },
   ];
@@ -589,7 +582,7 @@ Widget _buildExpertiseSection(BuildContext context) {
                   children: [
                     CircleAvatar(
                       radius: 40,
-                      backgroundImage: NetworkImage(item['imageUrl']),
+                      backgroundImage: AssetImage(item['imagePath']),
                     ),
                     const SizedBox(height: 10),
                     Text(
@@ -999,55 +992,41 @@ class ChatSupportScreen extends StatelessWidget {
 class HealthProgramsScreen extends StatelessWidget {
   const HealthProgramsScreen({super.key});
 
-  final List<Map<String, String>> programs = const [
+  static const List<Map<String, String>> programs = [
     {
       "title": "Diabetes & Pre Diabetes",
       "content": "Learn how to manage and prevent diabetes with expert advice.",
-      "imageUrl":
-          "https://milehighspine.com/wp-content/uploads/Diabetes101A.jpg",
-      "url": "https://therealhealth.org/diabetes/",
+      "imagePath": "assets/images/diabetes.jpg",
     },
     {
       "title": "Heart Diseases",
       "content": "Explore tips and programs for a healthy heart.",
-      "imageUrl":
-          "https://therealhealth.org/wp-content/uploads/2024/04/heart-p-1-200x200.png",
-      "url": "https://therealhealth.org/heart-diseases/",
+      "imagePath": "assets/images/heart.jpg",
     },
     {
       "title": "Weight Management",
       "content": "Achieve your ideal weight with our comprehensive guidance.",
-      "imageUrl":
-          "https://therealhealth.org/wp-content/uploads/2024/04/weight-diet-200x200.png",
-      "url": "https://therealhealth.org/obesity/",
+      "imagePath": "assets/images/weight.jpg",
     },
     {
       "title": "Gynae & PCOD",
       "content": "Specialized programs for women's health and PCOD management.",
-      "imageUrl":
-          "https://therealhealth.org/wp-content/uploads/2024/04/pcod-p-200x200.png",
-      "url": "https://therealhealth.org/pcod/",
+      "imagePath": "assets/images/pcod.jpg",
     },
     {
       "title": "Kids Immunity and Nutrition",
-      "content": "Boost your child's immunity with nutrition-focused programs",
-      "imageUrl":
-          "https://therealhealth.org/wp-content/uploads/2024/04/child-diet-200x200.png",
-      "url": "https://therealhealth.org/kids-immunity-nutrition/",
+      "content": "Boost your child's immunity with nutrition-focused programs.",
+      "imagePath": "assets/images/kids.jpg",
     },
     {
       "title": "Stress Management",
-      "content": "Manage stress with expert techniques and guidance",
-      "imageUrl":
-          "https://cdn.prod.website-files.com/620e4101b2ce12a1a6bff0e8/63bc1fffef375305987d272a_Tips%20for%20Stress%20Management%20for%20Students.webp",
-      "url": "https://therealhealth.org/stress-managment-pogram/",
+      "content": "Manage stress with expert techniques and guidance.",
+      "imagePath": "assets/images/stress.jpg",
     },
     {
       "title": "Nutrition For Cancer Patient",
-      "content": "Tailored nutritional guidance for cancer patients",
-      "imageUrl":
-          "https://therealhealth.org/wp-content/uploads/2024/04/can-diet-200x200.png",
-      "url": "https://therealhealth.org/low-immunity-2/",
+      "content": "Tailored nutritional guidance for cancer patients.",
+      "imagePath": "assets/images/cancer.jpg",
     },
   ];
 
@@ -1083,27 +1062,11 @@ class HealthProgramsScreen extends StatelessWidget {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        program['imageUrl']!,
+                      child: Image.asset(
+                        program['imagePath']!,
                         height: 60,
                         width: 60,
                         fit: BoxFit.cover,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return const SizedBox(
-                            height: 60,
-                            width: 60,
-                            child: Center(child: CircularProgressIndicator()),
-                          );
-                        },
-                        errorBuilder: (context, error, stackTrace) {
-                          return const SizedBox(
-                            height: 60,
-                            width: 60,
-                            child: Icon(Icons.broken_image,
-                                size: 40, color: Colors.grey),
-                          );
-                        },
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -1111,28 +1074,12 @@ class HealthProgramsScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ProgramDetailScreen(
-                                    title: program["title"]!,
-                                    content: program["content"]!,
-                                    imageUrl: program["imageUrl"]!,
-                                    url: program["url"]!,
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Text(
-                              program["title"]!,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue,
-                                decoration: TextDecoration.underline,
-                              ),
+                          Text(
+                            program["title"]!,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
                             ),
                           ),
                           const SizedBox(height: 4),
