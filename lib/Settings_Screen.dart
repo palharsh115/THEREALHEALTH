@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_application_3/login_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_application_3/main.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -28,7 +29,8 @@ class SettingsScreen extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const ProfileInformationScreen()),
+                MaterialPageRoute(
+                    builder: (context) => const ProfileInformationScreen()),
               );
             },
           ),
@@ -43,7 +45,8 @@ class SettingsScreen extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const PrivacySecurityScreen()),
+                MaterialPageRoute(
+                    builder: (context) => const PrivacySecurityScreen()),
               );
             },
           ),
@@ -58,7 +61,8 @@ class SettingsScreen extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const AppSettingsScreen()),
+                MaterialPageRoute(
+                    builder: (context) => const AppSettingsScreen()),
               );
             },
           ),
@@ -69,12 +73,12 @@ class SettingsScreen extends StatelessWidget {
   }
 }
 
-// Profile Information Screen
 class ProfileInformationScreen extends StatefulWidget {
   const ProfileInformationScreen({super.key});
 
   @override
-  State<ProfileInformationScreen> createState() => _ProfileInformationScreenState();
+  State<ProfileInformationScreen> createState() =>
+      _ProfileInformationScreenState();
 }
 
 class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
@@ -94,9 +98,7 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
 
   Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token');
-    print("Retrieved Token: $token");
-    return token;
+    return prefs.getString('auth_token');
   }
 
   Future<void> _loadUserDetails() async {
@@ -104,30 +106,18 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
     try {
       String? token = await _getToken();
       if (token == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Authentication token not found')),
-        );
+        _showSnackBar('Authentication token not found');
         return;
       }
 
-      final url = '$baseUrl/api/user/user/details';
-      print("Request URL: $url");
       final response = await http.get(
-        Uri.parse(url),
+        Uri.parse('$baseUrl/api/user/user/details'),
         headers: {'Authorization': 'Bearer $token'},
       );
-
-      print("Response Status Code: ${response.statusCode}");
-      print("Response Body: ${response.body}");
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final user = data['user'];
-
-        // Save user ID and token in SharedPreferences
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('user_id', user['_id']);
-        await prefs.setString('auth_token', token);
 
         setState(() {
           _userId = user['_id'];
@@ -136,21 +126,12 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
           _weightController.text = user['weight']?.toString() ?? '';
           _heightController.text = user['height']?.toString() ?? '';
         });
-
-        print("User ID: $_userId");
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('User details loaded')),
-        );
+        _showSnackBar('User details loaded');
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load user details: ${response.body}')),
-        );
+        _showSnackBar('Failed to load user details: ${response.body}');
       }
     } catch (e) {
-      print('Error fetching user details: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error fetching user details')),
-      );
+      _showSnackBar('Error fetching user details');
     } finally {
       setState(() => _isLoading = false);
     }
@@ -161,14 +142,10 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
     try {
       String? token = await _getToken();
       if (token == null || _userId == null) {
-        print("Error: Authentication token or user ID not found.");
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Authentication token or user ID not found')),
-        );
+        _showSnackBar('Authentication token or user ID not found');
         return;
       }
 
-      final url = '$baseUrl/api/user/user/update/$_userId';
       final userData = {
         'name': _nameController.text,
         'age': int.tryParse(_ageController.text),
@@ -176,12 +153,8 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
         'height': double.tryParse(_heightController.text),
       };
 
-      print("Request URL: $url");
-      print("Request Headers: {Authorization: Bearer $token, Content-Type: application/json}");
-      print("Request Body: ${json.encode(userData)}");
-
       final response = await http.put(
-        Uri.parse(url),
+        Uri.parse('$baseUrl/api/user/user/update/$_userId'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -189,93 +162,115 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
         body: json.encode(userData),
       );
 
-      print("Response Status Code: ${response.statusCode}");
-      print("Response Body: ${response.body}");
-
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        print("User details updated successfully: ${data['message']}");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(data['message'] ?? 'Profile updated successfully')),
-        );
+        _showSnackBar('Profile updated successfully');
       } else {
-        print("Failed to update user details: ${response.body}");
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to update profile')),
-        );
+        _showSnackBar('Failed to update profile');
       }
     } catch (e) {
-      print('Error updating user details: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error updating user details')),
-      );
+      _showSnackBar('Error updating user details');
     } finally {
       setState(() => _isLoading = false);
     }
   }
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _ageController.dispose();
-    _weightController.dispose();
-    _heightController.dispose();
-    super.dispose();
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Widget _buildModernTextField({
+    required TextEditingController controller,
+    required String labelText,
+    required IconData icon,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: TextFormField(
+        controller: controller,
+        keyboardType: keyboardType,
+        style: const TextStyle(color: Colors.black),
+        decoration: InputDecoration(
+          labelText: labelText,
+          labelStyle: const TextStyle(color: Colors.black54),
+          prefixIcon: Icon(icon, color: Colors.black54),
+          border: InputBorder.none,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Profile Information'),
-        backgroundColor: const Color.fromRGBO(81, 132, 53, 1),
+        backgroundColor: Colors.teal,
       ),
       body: Stack(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ListView(
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
               children: [
-                TextField(
+                const Text(
+                  "Update Your Information",
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 24),
+                _buildModernTextField(
                   controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Full Name', border: OutlineInputBorder()),
+                  labelText: "Full Name",
+                  icon: Icons.person,
                 ),
-                const SizedBox(height: 16),
-                TextField(
+                _buildModernTextField(
                   controller: _ageController,
+                  labelText: "Age",
+                  icon: Icons.cake,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Age', border: OutlineInputBorder()),
                 ),
-                const SizedBox(height: 16),
-                TextField(
+                _buildModernTextField(
                   controller: _weightController,
+                  labelText: "Weight (kg)",
+                  icon: Icons.monitor_weight,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Weight (kg)', border: OutlineInputBorder()),
                 ),
-                const SizedBox(height: 16),
-                TextField(
+                _buildModernTextField(
                   controller: _heightController,
+                  labelText: "Height (cm)",
+                  icon: Icons.height,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Height (cm)', border: OutlineInputBorder()),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 30),
                 ElevatedButton(
                   onPressed: _updateUserDetails,
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
-                  child: const Text('Save', style: TextStyle(color: Colors.white)),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: _loadUserDetails,
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
-                  child: const Text('Reload', style: TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32, vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    "Save",
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
                 ),
               ],
             ),
           ),
           if (_isLoading)
             Container(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withOpacity(0.4),
               child: const Center(child: CircularProgressIndicator()),
             ),
         ],
@@ -314,7 +309,8 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
     } catch (e) {
       print('Error managing data sharing: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to update data sharing preference')),
+        const SnackBar(
+            content: Text('Failed to update data sharing preference')),
       );
     }
   }
@@ -328,7 +324,8 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
 
       if (token == null || userId == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Authentication token or user ID not found')),
+          const SnackBar(
+              content: Text('Authentication token or user ID not found')),
         );
         return;
       }
@@ -358,7 +355,8 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
       } else {
         print("❌ Error deleting account: ${response.body}");
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error deleting account: ${response.statusCode}")),
+          SnackBar(
+              content: Text("Error deleting account: ${response.statusCode}")),
         );
       }
     } catch (e) {
@@ -441,9 +439,12 @@ class AppSettingsScreen extends StatelessWidget {
           children: [
             SwitchListTile(
               title: const Text('Dark Mode'),
-              value: false,
-              onChanged: (value) {
-                // Handle Dark Mode toggle
+              value: themeNotifier.value == ThemeMode.dark,
+              secondary: const Icon(Icons.dark_mode, color: Colors.black),
+              onChanged: (value) async {
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.setBool('isDarkMode', value);
+                themeNotifier.value = value ? ThemeMode.dark : ThemeMode.light;
               },
             ),
             const Divider(),
@@ -460,7 +461,7 @@ class AppSettingsScreen extends StatelessWidget {
 
 class TermsAndPrivacyPolicyScreen extends StatelessWidget {
   const TermsAndPrivacyPolicyScreen({super.key});
-  
+
   Future<void> _launchURL(String url) async {
     final Uri uri = Uri.parse(url);
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {

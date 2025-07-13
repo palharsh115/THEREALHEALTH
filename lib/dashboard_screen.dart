@@ -1,4 +1,10 @@
 import 'dart:convert'; // For JSON decoding
+import 'package:flutter_application_3/CancerNutritionScreen%20.dart';
+import 'package:flutter_application_3/CardioScreen.dart';
+import 'package:flutter_application_3/FemaleHealthScreen.dart';
+import 'package:flutter_application_3/KidsImmunityNutritionScreen.dart';
+import 'package:flutter_application_3/StressManagementScreen.dart';
+import 'package:flutter_application_3/WeightManagementScreen%20.dart';
 import 'package:flutter_application_3/base_url.dart';
 import 'package:http/http.dart' as http; // For HTTP requests
 import 'package:url_launcher/url_launcher.dart';
@@ -17,6 +23,7 @@ import 'login_screen.dart';
 import 'package:flutter_application_3/base_url.dart';
 import 'package:flutter_application_3/consultation_screen.dart';
 import 'package:flutter_application_3/Blog _Screen.dart';
+import 'package:flutter_application_3/DiabetesScreen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -109,7 +116,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             _buildServicesSection(context),
             _buildExpertiseSection(context),
             _buildNutritionTipsSection(context),
-            _buildContactUsSection(context),
+            buildContactUsSection(context), // Add Contact Us section
           ],
         ),
       ),
@@ -158,12 +165,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // Ad Slider Section
   Widget _buildAdSlider() {
-    List<String> adImages = [
-      'https://etimg.etb2bimg.com/thumb/msid-105205469,imgsize-15434,width-1200,height=765,overlay-ethealth/industry/early-detection-of-pre-diabetes-to-prevent-diabetes-need-of-the-hour.jpg',
-      'https://bpincontrol.in/wp-content/uploads/2023/08/Heart-Disease.jpg',
-      'https://therealhealth.org/wp/content/uploads/2024/04/child-diet-200x200.png'
+    final List<Map<String, String>> adData = [
+      {
+        'image': 'assets/images/heart.jpg',
+        'url': 'https://example.com/diabetes'
+      },
+      {'image': 'assets/images/kids.jpg', 'url': 'https://example.com/heart'},
+      {
+        'image': 'assets/images/stress.jpg',
+        'url': 'https://example.com/kids-nutrition'
+      },
     ];
 
     return Padding(
@@ -177,28 +189,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
           enableInfiniteScroll: true,
           autoPlayInterval: const Duration(seconds: 4),
         ),
-        items: adImages.map((image) {
-          return ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Image.network(
-              image,
-              fit: BoxFit.cover,
-              width: double.infinity,
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) return child;
-                return const Center(child: CircularProgressIndicator());
-              },
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  color: Colors.grey,
-                  child: const Center(
-                    child: Text(
-                      'Failed to load image',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                );
-              },
+        items: adData.map((ad) {
+          return GestureDetector(
+            onTap: () async {
+              final url = Uri.parse(ad['url']!);
+              if (await canLaunchUrl(url)) {
+                await launchUrl(url, mode: LaunchMode.externalApplication);
+              } else {
+                debugPrint("Could not launch ${ad['url']}");
+              }
+            },
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.asset(
+                ad['image']!,
+                fit: BoxFit.cover,
+                width: double.infinity,
+              ),
             ),
           );
         }).toList(),
@@ -207,44 +214,50 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 }
 
-// Sidebar Widget
 class Sidebar extends StatefulWidget {
-  const Sidebar({super.key});
+  const Sidebar({Key? key}) : super(key: key);
 
   @override
-  _SidebarState createState() => _SidebarState();
+  State<Sidebar> createState() => _SidebarState();
 }
 
 class _SidebarState extends State<Sidebar> {
-  // Default avatar image
-  String selectedAvatar = 'assets/images/profile.png';
-
-  // User details
+  String selectedAvatar = 'assets/images/boy.png'; // Default
   String? userName;
   String? userId;
 
   @override
   void initState() {
     super.initState();
+    _loadSavedAvatar();
     _fetchUserDetails();
   }
 
-  // Fetch user details
+  Future<void> _loadSavedAvatar() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedAvatar = prefs.getString('selected_avatar');
+    if (savedAvatar != null && mounted) {
+      setState(() {
+        selectedAvatar = savedAvatar;
+      });
+    }
+  }
+
+  Future<void> _saveAvatar(String path) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('selected_avatar', path);
+  }
+
   Future<void> _fetchUserDetails() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString("auth_token");
 
-    if (token == null) {
-      return;
-    }
+    if (token == null) return;
 
     try {
       final response = await http.get(
-        Uri.parse(
-            "$baseUrl/api/user/user/details"), // Replace with your backend URL
-        headers: {
-          "Authorization": "Bearer $token",
-        },
+        Uri.parse("$baseUrl/api/user/user/details"),
+        headers: {"Authorization": "Bearer $token"},
       );
 
       if (response.statusCode == 200) {
@@ -253,6 +266,14 @@ class _SidebarState extends State<Sidebar> {
           userName = data["user"]["name"];
           userId = data["user"]["_id"];
         });
+
+        // Apply saved avatar if any
+        final savedAvatar = prefs.getString('selected_avatar');
+        if (savedAvatar != null && mounted) {
+          setState(() {
+            selectedAvatar = savedAvatar;
+          });
+        }
       } else {
         print("Failed to fetch user details: ${response.body}");
       }
@@ -261,13 +282,10 @@ class _SidebarState extends State<Sidebar> {
     }
   }
 
-  // Logout function
   Future<void> _logout(BuildContext context) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove("auth_token"); // Remove token
-    await prefs.clear(); // Clear all stored data if needed
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // Clear all stored data
 
-    // Navigate to LoginScreen and clear backstack
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -275,8 +293,12 @@ class _SidebarState extends State<Sidebar> {
     );
   }
 
-  // Function to show the avatar selection dialog
   void _showAvatarSelectionDialog(BuildContext context) {
+    final List<String> avatarOptions = [
+      'assets/images/boy.png',
+      'assets/images/woman.png',
+    ];
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -284,26 +306,21 @@ class _SidebarState extends State<Sidebar> {
           title: const Text('Choose Your Avatar'),
           content: Wrap(
             spacing: 10,
-            children: [
-              _avatarChoice('assets/images/human.png'),
-              _avatarChoice('assets/images/boy.png'),
-              _avatarChoice('assets/images/woman.png'),
-              _avatarChoice('assets/images/profile.png'),
-            ],
+            children: avatarOptions.map((img) => _avatarChoice(img)).toList(),
           ),
         );
       },
     );
   }
 
-  // Helper function to create selectable avatars
   Widget _avatarChoice(String imagePath) {
     return GestureDetector(
       onTap: () {
         setState(() {
           selectedAvatar = imagePath;
         });
-        Navigator.of(context).pop(); // Close dialog
+        _saveAvatar(imagePath);
+        Navigator.of(context).pop();
       },
       child: CircleAvatar(
         backgroundColor: Colors.grey[200],
@@ -331,7 +348,6 @@ class _SidebarState extends State<Sidebar> {
               },
               child: CircleAvatar(
                 backgroundColor: Colors.white,
-                radius: 70,
                 backgroundImage: AssetImage(selectedAvatar),
               ),
             ),
@@ -351,21 +367,16 @@ class _SidebarState extends State<Sidebar> {
           const Divider(),
           _buildDrawerItem(
               context, Icons.settings, 'Settings', const SettingsScreen()),
-
-          // Logout Button
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
             title: const Text('Logout', style: TextStyle(color: Colors.red)),
-            onTap: () {
-              _logout(context);
-            },
+            onTap: () => _logout(context),
           ),
         ],
       ),
     );
   }
 
-  // Function to create drawer items
   Widget _buildDrawerItem(
       BuildContext context, IconData icon, String title, Widget destination) {
     return ListTile(
@@ -403,7 +414,8 @@ Widget _buildFeaturesSection(BuildContext context) {
               context,
               'PRAKRITI PARIKSHA',
               'assets/images/icon2.jpeg',
-              url: 'https://therealhealth.org/prakriti-analysis/#single/0',
+              url:
+                  'https://docs.google.com/forms/d/1kEnhHSZvxX5V8mLbVoiFjZtmJ5XWB_dOK6Mxbod7Gcg/viewform?chromeless=1&edit_requested=true',
             ),
             _buildFeatureTile(
               context,
@@ -523,7 +535,7 @@ Widget _buildExpertiseSection(BuildContext context) {
     {
       'title': 'Heart Disease',
       'imagePath': 'assets/images/heart.jpg',
-      'screen': const HeartDiseaseScreen(),
+      'screen': const CardioScreen(),
     },
     {
       'title': 'Weight Management',
@@ -533,12 +545,12 @@ Widget _buildExpertiseSection(BuildContext context) {
     {
       'title': 'PCOD and Gynae Problems',
       'imagePath': 'assets/images/pcod.jpg',
-      'screen': const PcodScreen(),
+      'screen': const FemaleHealthScreen(),
     },
     {
       'title': 'Kids Immunity & Nutrition',
       'imagePath': 'assets/images/kids.jpg',
-      'screen': const KidsNutritionScreen(),
+      'screen': const KidsImmunityNutritionScreen(),
     },
     {
       'title': 'Nutrition for Cancer Patient',
@@ -601,209 +613,6 @@ Widget _buildExpertiseSection(BuildContext context) {
   );
 }
 
-// Individual Screens
-class DiabetesScreen extends StatelessWidget {
-  const DiabetesScreen({super.key});
-
-  static const String url = 'https://therealhealth.org/diabetes/';
-
-  Future<void> _launchURL() async {
-    final Uri uri = Uri.parse(url);
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      throw 'Could not launch $url';
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Trigger URL opening after widget build
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      try {
-        await _launchURL();
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
-      }
-      Navigator.pop(context); // Go back after launching URL
-    });
-
-    // Show a blank screen or loader briefly
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator()),
-    );
-  }
-}
-
-class HeartDiseaseScreen extends StatelessWidget {
-  const HeartDiseaseScreen({super.key});
-
-  static const String url = 'https://therealhealth.org/heart-diseases/';
-
-  Future<void> _launchURL() async {
-    final Uri uri = Uri.parse(url);
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      throw 'Could not launch $url';
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Trigger URL opening after widget build
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      try {
-        await _launchURL();
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
-      }
-      Navigator.pop(context); // Go back after launching URL
-    });
-
-    return Scaffold(
-      appBar: AppBar(title: const Text('Heart Disease Info')),
-      body: const Center(
-        child: Text('Launching Heart Disease URL...'),
-      ),
-    );
-  }
-}
-
-class WeightManagementScreen extends StatelessWidget {
-  const WeightManagementScreen({super.key});
-
-  static const String url = 'https://therealhealth.org/obesity/';
-
-  Future<void> _launchURL() async {
-    final Uri uri = Uri.parse(url);
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      throw 'Could not launch $url';
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Trigger URL opening after widget build
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      try {
-        await _launchURL();
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
-      }
-      Navigator.pop(context); // Go back after launching URL
-    });
-
-    // Show a blank screen or loader briefly
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator()),
-    );
-  }
-}
-
-class PcodScreen extends StatelessWidget {
-  const PcodScreen({super.key});
-
-  static const String url = 'https://therealhealth.org/pcod/';
-
-  Future<void> _launchURL() async {
-    final Uri uri = Uri.parse(url);
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      throw 'Could not launch $url';
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Trigger URL opening after widget build
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      try {
-        await _launchURL();
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
-      }
-      Navigator.pop(context); // Go back after launching URL
-    });
-
-    // Show a blank screen or loader briefly
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator()),
-    );
-  }
-}
-
-class KidsNutritionScreen extends StatelessWidget {
-  const KidsNutritionScreen({super.key});
-
-  static const String url =
-      'https://therealhealth.org/kids-immunity-nutrition/';
-
-  Future<void> _launchURL() async {
-    final Uri uri = Uri.parse(url);
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      throw 'Could not launch $url';
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Trigger URL opening after widget build
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      try {
-        await _launchURL();
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
-      }
-      Navigator.pop(context); // Go back after launching URL
-    });
-
-    // Show a blank screen or loader briefly
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator()),
-    );
-  }
-}
-
-class CancerNutritionScreen extends StatelessWidget {
-  const CancerNutritionScreen({super.key});
-
-  static const String url =
-      'https://therealhealth.org/nutrition-for-cancer-patients/';
-
-  Future<void> _launchURL() async {
-    final Uri uri = Uri.parse(url);
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      throw 'Could not launch $url';
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Trigger URL opening after widget build
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      try {
-        await _launchURL();
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
-      }
-      Navigator.pop(context); // Go back after launching URL
-    });
-
-    // Show a blank screen or loader briefly
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator()),
-    );
-  }
-}
-
 Widget _buildNutritionTipsSection(BuildContext context) {
   return Padding(
     padding: const EdgeInsets.all(16.0),
@@ -837,26 +646,53 @@ Widget _buildNutritionTipsSection(BuildContext context) {
   );
 }
 
-Widget _buildContactUsSection(BuildContext context) {
-  return const Padding(
-    padding: EdgeInsets.all(16.0),
+// ✅ This is a widget function, not a class
+Widget buildContactUsSection(BuildContext context) {
+  // Reusable URL launcher function inside the widget
+  Future<void> _launchURL(String url) async {
+    final uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not launch $url')),
+      );
+    }
+  }
+
+  return Padding(
+    padding: const EdgeInsets.all(16.0),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           'Contact Us',
           style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
         ),
-        SizedBox(height: 10),
-        ListTile(
-          leading: Icon(Icons.email, color: Colors.green),
-          title: Text('Email Us'),
-          subtitle: Text('support@therealhealth.org'),
+        const SizedBox(height: 10),
+
+        // 📧 Email Link
+        InkWell(
+          onTap: () {
+            _launchURL(
+              'mailto:therealhealth13@gmail.com?subject=Support&body=Hello Team',
+            );
+          },
+          child: const ListTile(
+            leading: Icon(Icons.email, color: Colors.green),
+            title: Text('Email Us'),
+            subtitle: Text('therealhealth13@gmail.com'),
+          ),
         ),
-        ListTile(
-          leading: Icon(Icons.phone, color: Colors.green),
-          title: Text('Call Us'),
-          subtitle: Text('+1 234 567 890'),
+
+        // 📞 Phone Link
+        InkWell(
+          onTap: () {
+            _launchURL('tel:+919991162741');
+          },
+          child: const ListTile(
+            leading: Icon(Icons.phone, color: Colors.green),
+            title: Text('Call Us'),
+            subtitle: Text('+91 9991162741'),
+          ),
         ),
       ],
     ),
@@ -931,7 +767,7 @@ BottomNavigationBarItem _buildAnimatedNavItem(
 
   return BottomNavigationBarItem(
     icon: AnimatedScale(
-      scale: isSelected ? 2.3 : 1.0,
+      scale: isSelected ? 1.2 : 1.0,
       duration: const Duration(milliseconds: 200),
       child: Icon(icon),
     ),
@@ -959,7 +795,7 @@ class ChatSupportScreen extends StatelessWidget {
 
   Future<void> _launchURL() async {
     const String phoneNumber =
-        "+919015409707"; // Organization's WhatsApp number
+        "+919991162741"; // Organization's WhatsApp number
     final String message = Uri.encodeComponent("Hello, I need support");
     final String url = "https://wa.me/$phoneNumber?text=$message";
 
@@ -1050,50 +886,87 @@ class HealthProgramsScreen extends StatelessWidget {
           itemCount: programs.length,
           itemBuilder: (context, index) {
             final program = programs[index];
-            return Card(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: 4,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.asset(
-                        program['imagePath']!,
-                        height: 60,
-                        width: 60,
-                        fit: BoxFit.cover,
+            return GestureDetector(
+              onTap: () {
+                final title = program['title'];
+                Widget destination;
+
+                switch (title) {
+                  case "Diabetes & Pre Diabetes":
+                    destination = const DiabetesScreen();
+                    break;
+                  case "Heart Diseases":
+                    destination = const CardioScreen();
+                    break;
+                  case "Weight Management":
+                    destination = const WeightManagementScreen();
+                    break;
+                  case "Gynae & PCOD":
+                    destination = FemaleHealthScreen();
+                    break;
+                  case "Kids Immunity and Nutrition":
+                    destination = const KidsImmunityNutritionScreen();
+                    break;
+                  case "Stress Management":
+                    destination = const StressManagementScreen();
+                    break;
+                  case "Nutrition For Cancer Patient":
+                    destination = const CancerNutritionScreen();
+                    break;
+                  default:
+                    return;
+                }
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => destination),
+                );
+              },
+              child: Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 4,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.asset(
+                          program['imagePath']!,
+                          height: 60,
+                          width: 60,
+                          fit: BoxFit.cover,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            program["title"]!,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              program["title"]!,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            program["content"]!,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey.shade700,
+                            const SizedBox(height: 4),
+                            Text(
+                              program["content"]!,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey.shade700,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             );
@@ -1107,23 +980,14 @@ class HealthProgramsScreen extends StatelessWidget {
 class ProgramDetailScreen extends StatelessWidget {
   final String title;
   final String content;
-  final String imageUrl;
-  final String url;
+  final String imagePath;
 
   const ProgramDetailScreen({
     super.key,
     required this.title,
     required this.content,
-    required this.imageUrl,
-    required this.url,
+    required this.imagePath,
   });
-
-  Future<void> _launchURL() async {
-    final Uri uri = Uri.parse(url);
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      throw 'Could not launch $url';
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -1132,30 +996,18 @@ class ProgramDetailScreen extends StatelessWidget {
         title: Text(title),
         backgroundColor: Colors.teal,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                imageUrl,
+              child: Image.asset(
+                imagePath,
                 height: 200,
                 width: double.infinity,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return const SizedBox(
-                    height: 200,
-                    child: Center(
-                      child: Icon(
-                        Icons.broken_image,
-                        size: 80,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  );
-                },
               ),
             ),
             const SizedBox(height: 16),
@@ -1171,13 +1023,8 @@ class ProgramDetailScreen extends StatelessWidget {
               content,
               style: const TextStyle(
                 fontSize: 16,
-                color: Colors.grey,
+                color: Colors.black87,
               ),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _launchURL,
-              child: const Text("Learn More"),
             ),
           ],
         ),
